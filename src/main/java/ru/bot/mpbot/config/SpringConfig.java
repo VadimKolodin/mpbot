@@ -2,6 +2,7 @@ package ru.bot.mpbot.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
@@ -16,8 +17,11 @@ import java.net.URL;
 @Configuration
 public class SpringConfig {
     private final static String WEBHOOK_PATH = "https://6946-178-218-81-141.eu.ngrok.io";
-    private final static String TOKEN = "5536719631:AAHQJxNnxrMkSz0bHAx0N7STeITNTWsH0U0";
-    private final static String NAME = "mpanalyticstest_bot";
+    @Value("${bot.token}")
+    private static String TOKEN;
+    @Value("${bot.name}")
+    private static String NAME;
+
     private final Logger LOGGER = LoggerFactory.getLogger(SpringConfig.class);
 
     public SpringConfig(){
