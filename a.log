@@ -1,0 +1,25 @@
+2022-07-16 15:01:40,151 INFO o.s.b.StartupInfoLogger [main] Starting MpbotApplication using Java 17 on User-PC with PID 15548 (D:\Vadim\projects\mpbot\target\classes started by User in D:\Vadim\projects\mpbot)
+2022-07-16 15:01:40,157 INFO o.s.b.SpringApplication [main] No active profile set, falling back to 1 default profile: "default"
+2022-07-16 15:01:40,663 INFO o.s.d.r.c.RepositoryConfigurationDelegate [main] Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2022-07-16 15:01:40,712 INFO o.s.d.r.c.RepositoryConfigurationDelegate [main] Finished Spring Data repository scanning in 42 ms. Found 2 JPA repository interfaces.
+2022-07-16 15:01:41,161 INFO o.s.b.w.e.t.TomcatWebServer [main] Tomcat initialized with port(s): 8080 (http)
+2022-07-16 15:01:41,175 INFO o.a.j.l.DirectJDKLog [main] Initializing ProtocolHandler ["http-nio-8080"]
+2022-07-16 15:01:41,175 INFO o.a.j.l.DirectJDKLog [main] Starting service [Tomcat]
+2022-07-16 15:01:41,175 INFO o.a.j.l.DirectJDKLog [main] Starting Servlet engine: [Apache Tomcat/9.0.64]
+2022-07-16 15:01:41,380 INFO o.a.j.l.DirectJDKLog [main] Initializing Spring embedded WebApplicationContext
+2022-07-16 15:01:41,380 INFO o.s.b.w.s.c.ServletWebServerApplicationContext [main] Root WebApplicationContext: initialization completed in 1191 ms
+2022-07-16 15:01:41,490 INFO o.h.j.i.u.LogHelper [main] HHH000204: Processing PersistenceUnitInfo [name: default]
+2022-07-16 15:01:41,527 INFO o.h.Version [main] HHH000412: Hibernate ORM core version 5.6.9.Final
+2022-07-16 15:01:41,622 INFO o.h.a.c.r.j.JavaReflectionManager [main] HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2022-07-16 15:01:41,690 INFO c.z.h.HikariDataSource [main] HikariPool-1 - Starting...
+2022-07-16 15:01:41,851 INFO c.z.h.HikariDataSource [main] HikariPool-1 - Start completed.
+2022-07-16 15:01:41,863 INFO o.h.d.Dialect [main] HHH000400: Using dialect: org.hibernate.dialect.PostgreSQLDialect
+2022-07-16 15:01:42,534 INFO o.h.e.t.j.p.i.JtaPlatformInitiator [main] HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2022-07-16 15:01:42,542 INFO o.s.o.j.AbstractEntityManagerFactoryBean [main] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2022-07-16 15:01:43,322 WARN o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration [main] spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2022-07-16 15:01:43,812 INFO o.a.j.l.DirectJDKLog [main] Starting ProtocolHandler ["http-nio-8080"]
+2022-07-16 15:01:43,836 INFO o.s.b.w.e.t.TomcatWebServer [main] Tomcat started on port(s): 8080 (http) with context path ''
+2022-07-16 15:01:43,848 INFO o.s.b.StartupInfoLogger [main] Started MpbotApplication in 4.076 seconds (JVM running for 5.251)
+2022-07-16 15:01:44,359 INFO o.s.o.j.AbstractEntityManagerFactoryBean [SpringApplicationShutdownHook] Closing JPA EntityManagerFactory for persistence unit 'default'
+2022-07-16 15:01:44,361 INFO c.z.h.HikariDataSource [SpringApplicationShutdownHook] HikariPool-1 - Shutdown initiated...
+2022-07-16 15:01:44,367 INFO c.z.h.HikariDataSource [SpringApplicationShutdownHook] HikariPool-1 - Shutdown completed.
