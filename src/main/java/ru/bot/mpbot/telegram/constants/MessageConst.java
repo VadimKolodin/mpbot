@@ -35,7 +35,11 @@ public enum MessageConst {
     RETURNS_MP_CHOICE("Выберете маркетплейс:"),
     RETURNS_PERIOD_CHOICE("Выберете период:"),
     RETURN_TOP_TEMPLATE("Топ возвратов на *%s* за период от *%s* до *%s*:\n"),
-    RETURN_TOP_EMPTY("За период от *%s* до *%s* на *%s* возвратов не было\uD83D\uDE0E");
+    RETURN_TOP_EMPTY("За период от *%s* до *%s* на *%s* возвратов не было\uD83D\uDE0E"),
+    NOTIFICATIONS("При включенных уведомлениях вам будут приходить сообщения о необходимости допоставки ваших " +
+            "товаров по мере уменьшения их количества на складах"),
+    NOTIFICATIONS_ENABLED("Уведомления включены успешно!"),
+    NOTIFICATIONS_DISABLED("Уведомления отключены успешно!");
     private final String message;
 
     MessageConst(String message) {

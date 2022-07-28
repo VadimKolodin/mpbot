@@ -1,4 +1,4 @@
-package ru.bot.mpbot.exception;
+package ru.bot.mpbot.model.client;
 
 public class NoSuchClientException extends NullPointerException{
     public NoSuchClientException(){}

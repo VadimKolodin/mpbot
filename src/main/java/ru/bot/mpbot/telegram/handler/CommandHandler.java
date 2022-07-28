@@ -1,6 +1,5 @@
 package ru.bot.mpbot.telegram.handler;
 
-import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -10,8 +9,8 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.bot.mpbot.SpringContext;
-import ru.bot.mpbot.exception.NoSuchClientException;
-import ru.bot.mpbot.service.CommandRecordService;
+import ru.bot.mpbot.model.client.NoSuchClientException;
+import ru.bot.mpbot.model.commandrecord.CommandRecordService;
 import ru.bot.mpbot.telegram.MpBot;
 import ru.bot.mpbot.telegram.commands.*;
 import ru.bot.mpbot.telegram.commands.text.*;

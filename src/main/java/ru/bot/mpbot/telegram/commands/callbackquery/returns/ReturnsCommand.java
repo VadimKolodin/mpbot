@@ -1,14 +1,12 @@
 package ru.bot.mpbot.telegram.commands.callbackquery.returns;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import net.bytebuddy.asm.Advice;
-import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.bot.mpbot.SpringContext;
-import ru.bot.mpbot.entity.Client;
-import ru.bot.mpbot.service.ClientService;
+import ru.bot.mpbot.model.client.Client;
+import ru.bot.mpbot.model.client.ClientService;
 import ru.bot.mpbot.telegram.commands.BotCommand;
 import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.ozon.AnalyticsOzonRequest;
 import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.wb.OrderWbRequest;

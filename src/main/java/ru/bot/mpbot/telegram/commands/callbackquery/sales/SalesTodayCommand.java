@@ -1,17 +1,15 @@
 package ru.bot.mpbot.telegram.commands.callbackquery.sales;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import ru.bot.mpbot.SpringContext;
-import ru.bot.mpbot.entity.Client;
-import ru.bot.mpbot.service.ClientService;
+import ru.bot.mpbot.model.client.Client;
+import ru.bot.mpbot.model.client.ClientService;
 import ru.bot.mpbot.telegram.commands.BotMediaCommand;
-import ru.bot.mpbot.telegram.commands.callbackquery.capitalize.CapitalizeCommand;
 import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.ozon.AnalyticsOzonRequest;
 import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.ozon.GetPriceOzonRequest;
 import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.wb.OrderWbRequest;

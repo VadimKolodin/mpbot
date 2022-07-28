@@ -1,7 +1,6 @@
-package ru.bot.mpbot.repository;
+package ru.bot.mpbot.model.commandrecord;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.bot.mpbot.entity.CommandRecord;
 
 public interface CommandRecordRepository extends JpaRepository<CommandRecord, Long> {
 }

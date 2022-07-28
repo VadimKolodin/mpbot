@@ -1,11 +1,10 @@
-package ru.bot.mpbot.service;
+package ru.bot.mpbot.model.commandrecord;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.bot.mpbot.entity.Client;
-import ru.bot.mpbot.entity.CommandRecord;
-import ru.bot.mpbot.exception.NoSuchClientException;
-import ru.bot.mpbot.repository.CommandRecordRepository;
+import ru.bot.mpbot.model.client.Client;
+import ru.bot.mpbot.model.client.ClientService;
+import ru.bot.mpbot.model.client.NoSuchClientException;
 
 @Service
 public class CommandRecordService {

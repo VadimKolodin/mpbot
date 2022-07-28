@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.bot.mpbot.SpringContext;
-import ru.bot.mpbot.entity.Client;
-import ru.bot.mpbot.service.ClientService;
+import ru.bot.mpbot.model.client.Client;
+import ru.bot.mpbot.model.client.ClientService;
 import ru.bot.mpbot.telegram.commands.BotCommand;
 import ru.bot.mpbot.telegram.constants.Colors;
 import ru.bot.mpbot.telegram.constants.MessageConst;
@@ -35,7 +35,7 @@ public class SetWBKeyCommand extends BotCommand {
         if (client==null){
             LOGGER.info(Colors.GREEN.get()+"Registering new user: "+chatId+Colors.RESET.get());
             clientService.createClient(new Client(chatId, null,
-                    wbKey, null, LocalDate.now(), LocalDate.now()));
+                    wbKey, null,false,  LocalDate.now(), LocalDate.now()));
 
         } else {
             clientService.updateClientWBKey(chatId, wbKey);

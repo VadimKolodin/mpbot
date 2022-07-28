@@ -1,4 +1,6 @@
-package ru.bot.mpbot.entity;
+package ru.bot.mpbot.model.commandrecord;
+
+import ru.bot.mpbot.model.client.Client;
 
 import javax.persistence.*;
 import java.util.Objects;

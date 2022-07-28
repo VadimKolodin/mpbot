@@ -17,10 +17,10 @@ import java.net.URL;
 @Configuration
 public class SpringConfig {
     private final static String WEBHOOK_PATH = "https://6946-178-218-81-141.eu.ngrok.io";
-    @Value("${bot.token}")
-    private static String TOKEN;
-    @Value("${bot.name}")
-    private static String NAME;
+   // @Value("${bot.token}")
+    private static String TOKEN = "5536719631:AAHQJxNnxrMkSz0bHAx0N7STeITNTWsH0U0";
+   // @Value("${bot.name}")
+    private static String NAME = "mpanalyticstest_bot";
 
     private final Logger LOGGER = LoggerFactory.getLogger(SpringConfig.class);
 

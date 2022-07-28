@@ -3,7 +3,8 @@ package ru.bot.mpbot.telegram.constants;
 public enum MenuButtons {
     CAPITALIZE("Капитализация склада", "/capitalize"),
     SALES_TODAY("Продажи за сегодня","/sales"),
-    RETURNS("Топ возвратов", "/returns");
+    RETURNS("Топ возвратов", "/returns"),
+    NOTIFICATIONS("Уведомления допоставок", "/notif");
 
 
     private final String name;

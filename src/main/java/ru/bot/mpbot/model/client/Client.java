@@ -1,4 +1,4 @@
-package ru.bot.mpbot.entity;
+package ru.bot.mpbot.model.client;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -18,24 +18,34 @@ public class Client {
             generator = "client_seq"
     )
     private Long id;
-
     private Long tgId;
     private String oznKey;
     private String wbKey;
     private String oznId;
+    @Column(columnDefinition = "boolean default false")
+    private boolean isNotificationEnabled;
     private LocalDate regDate;
     private LocalDate usageDate;
 
     public Client() {
     }
 
-    public Client(Long tgId, String oznKey, String wbKey, String oznId, LocalDate regDate, LocalDate usageDate) {
+    public Client(Long tgId, String oznKey, String wbKey, String oznId, boolean isNotificationEnabled, LocalDate regDate, LocalDate usageDate) {
         this.tgId = tgId;
         this.oznKey = oznKey;
         this.wbKey = wbKey;
         this.oznId = oznId;
+        this.isNotificationEnabled = isNotificationEnabled;
         this.regDate = regDate;
         this.usageDate = usageDate;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getTgId() {
@@ -70,6 +80,14 @@ public class Client {
         this.oznId = oznId;
     }
 
+    public boolean isNotificationEnabled() {
+        return isNotificationEnabled;
+    }
+
+    public void setNotificationEnabled(boolean notificationEnabled) {
+        isNotificationEnabled = notificationEnabled;
+    }
+
     public LocalDate getRegDate() {
         return regDate;
     }
@@ -87,27 +105,24 @@ public class Client {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Client user = (Client) o;
-        return tgId.equals(user.tgId) && oznKey.equals(user.oznKey) && wbKey.equals(user.wbKey) && oznId.equals(user.oznId) && regDate.equals(user.regDate) && usageDate.equals(user.usageDate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(tgId, oznKey, wbKey, oznId, regDate, usageDate);
-    }
-
-    @Override
     public String toString() {
-        return "{\"User\":{"
-                + "                        \"tgId\":\"" + tgId + "\""
-                + ",                         \"oznKey\":\"" + oznKey + "\""
-                + ",                         \"wbKey\":\"" + wbKey + "\""
-                + ",                         \"oznId\":\"" + oznId + "\""
-                + ",                         \"regDate\":" + regDate
-                + ",                         \"usageDate\":" + usageDate
-                + "}}";
+        String s = "{" + "\"id\":" +
+                id +
+                ",\"tgId\":" +
+                tgId +
+                ",\"oznKey\":\"" +
+                Objects.toString(oznKey, "") + '\"' +
+                ",\"wbKey\":\"" +
+                Objects.toString(wbKey, "") + '\"' +
+                ",\"oznId\":\"" +
+                Objects.toString(oznId, "") + '\"' +
+                ",\"isNotificationEnabled\":" +
+                isNotificationEnabled +
+                ",\"regDate\":" +
+                regDate +
+                ",\"usageDate\":" +
+                usageDate +
+                '}';
+        return s;
     }
 }

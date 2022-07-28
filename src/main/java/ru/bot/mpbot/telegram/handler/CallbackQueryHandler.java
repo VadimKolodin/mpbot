@@ -1,6 +1,5 @@
 package ru.bot.mpbot.telegram.handler;
 
-import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -11,19 +10,24 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.bot.mpbot.SpringContext;
 import ru.bot.mpbot.exception.*;
-import ru.bot.mpbot.service.CommandRecordService;
+import ru.bot.mpbot.model.client.ClientService;
+import ru.bot.mpbot.model.client.NoSuchClientException;
+import ru.bot.mpbot.model.commandrecord.CommandRecordService;
 import ru.bot.mpbot.telegram.MpBot;
 import ru.bot.mpbot.telegram.commands.BotCommand;
 import ru.bot.mpbot.telegram.commands.BotMediaCommand;
 import ru.bot.mpbot.telegram.commands.callbackquery.CheckOzonCommand;
 import ru.bot.mpbot.telegram.commands.callbackquery.CheckWBCommand;
 import ru.bot.mpbot.telegram.commands.callbackquery.capitalize.CapitalizeCommand;
+import ru.bot.mpbot.telegram.commands.callbackquery.notifications.DisableNotificationCommand;
+import ru.bot.mpbot.telegram.commands.callbackquery.notifications.EnableNotificationCommand;
 import ru.bot.mpbot.telegram.commands.callbackquery.returns.ReturnPeriod;
 import ru.bot.mpbot.telegram.commands.callbackquery.returns.ReturnsCommand;
 import ru.bot.mpbot.telegram.commands.callbackquery.sales.SalesTodayCommand;
 import ru.bot.mpbot.telegram.constants.ErrorConst;
 import ru.bot.mpbot.telegram.constants.MenuButtons;
 import ru.bot.mpbot.telegram.constants.MessageConst;
+
 
 public class CallbackQueryHandler {
     private static final Long ADMIN = 433638597L;
@@ -97,6 +101,55 @@ public class CallbackQueryHandler {
                 ReturnPeriod period = ReturnPeriod.getEnum(
                 Integer.parseInt(queryData.substring(queryData.length()-1))-1);
                 command = new ReturnsCommand(isOzn, period, chatId);
+            }
+        } else if (MenuButtons.NOTIFICATIONS.getData().equals(queryData)){
+            EditMessageText msg = new EditMessageText();
+            msg.setChatId(chatId.toString());
+            msg.setMessageId(callbackQuery.getMessage().getMessageId());
+            if (SpringContext.getBean(ClientService.class).getClientByTgId(chatId).isNotificationEnabled()){
+                msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
+                        .getNotificationsDisbale());
+            } else {
+                msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
+                        .getNotificationsEnable());
+            }
+            msg.setText(MessageConst.NOTIFICATIONS.getMessage());
+            return msg;
+        } else if (queryData.contains("/notif_")){
+            if ("/notif_enable".equals(queryData)){
+                command = new EnableNotificationCommand(chatId);
+                EditMessageText msg = new EditMessageText();
+                msg.setChatId(chatId.toString());
+                msg.setMessageId(callbackQuery.getMessage().getMessageId());
+                msg.setText(MessageConst.NOTIFICATIONS.getMessage());
+                msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
+                        .getNotificationsDisbale());
+                try {
+                    bot.execute(msg);
+                } catch (TelegramApiException e) {
+                    LOGGER.error("error changing notification button to disable", e);
+                }
+            } else if ("/notif_disable".equals(queryData)){
+                command = new DisableNotificationCommand(chatId);
+                EditMessageText msg = new EditMessageText();
+                msg.setChatId(chatId.toString());
+                msg.setMessageId(callbackQuery.getMessage().getMessageId());
+                msg.setText(MessageConst.NOTIFICATIONS.getMessage());
+                msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
+                        .getNotificationsEnable());
+                try {
+                    bot.execute(msg);
+                } catch (TelegramApiException e) {
+                    LOGGER.error("error changing notification button to enable", e);
+                }
+            } else if ("/notif_back".equals(queryData)){
+                EditMessageText msg = new EditMessageText();
+                msg.setChatId(chatId.toString());
+                msg.setMessageId(callbackQuery.getMessage().getMessageId());
+                msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
+                        .getPage1());
+                msg.setText(MessageConst.MENU_TEXT.getMessage());
+                return msg;
             }
         }
 

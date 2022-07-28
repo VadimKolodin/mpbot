@@ -16,6 +16,8 @@ public class MenuKeyboardMaker {
     private final InlineKeyboardMarkup returnsMpChoice;
     private final InlineKeyboardMarkup returnsPeriodOzon;
     private final InlineKeyboardMarkup returnsPeriodWB;
+    private final InlineKeyboardMarkup notificationsEnable;
+    private final InlineKeyboardMarkup notificationsDisbale;
 
     public MenuKeyboardMaker(){
         List<List<InlineKeyboardButton>> rowListCheck = new ArrayList<>();
@@ -27,6 +29,9 @@ public class MenuKeyboardMaker {
         returnsMpChoice = generateReturnsMpKeyboards();
         returnsPeriodOzon = generateReturnsPeriodKeyboards(true);
         returnsPeriodWB = generateReturnsPeriodKeyboards(false);
+
+        notificationsEnable = generateEnableNotifications();
+        notificationsDisbale = generateDisableNotifications();
 
         List<List<InlineKeyboardButton>> rowListSales= new ArrayList<>();
         rowListSales.add(createButton("Подробнее", "/sales_detailed"));
@@ -80,6 +85,23 @@ public class MenuKeyboardMaker {
         return temp;
     }
 
+    public InlineKeyboardMarkup generateEnableNotifications(){
+        List<List<InlineKeyboardButton>> rowListPeriod = new ArrayList<>();
+        InlineKeyboardMarkup temp = new InlineKeyboardMarkup();
+        rowListPeriod.add(createButton("Включить уведомления✅", "/notif_enable"));
+        rowListPeriod.add(createButton("«Назад", "/notif_back"));
+        temp.setKeyboard(rowListPeriod);
+        return temp;
+    }
+    public InlineKeyboardMarkup generateDisableNotifications(){
+        List<List<InlineKeyboardButton>> rowListPeriod = new ArrayList<>();
+        InlineKeyboardMarkup temp = new InlineKeyboardMarkup();
+        rowListPeriod.add(createButton("Отключить уведомления❌", "/notif_disable"));
+        rowListPeriod.add(createButton("«Назад", "/notif_back"));
+        temp.setKeyboard(rowListPeriod);
+        return temp;
+    }
+
     public InlineKeyboardMarkup getCheckConnection(){ return checkConnection; }
     public InlineKeyboardMarkup getDetailedSales(){
         return detailedSales;
@@ -98,4 +120,11 @@ public class MenuKeyboardMaker {
         }
     }
 
+    public InlineKeyboardMarkup getNotificationsEnable() {
+        return notificationsEnable;
+    }
+
+    public InlineKeyboardMarkup getNotificationsDisbale() {
+        return notificationsDisbale;
+    }
 }

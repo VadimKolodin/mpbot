@@ -1,19 +1,14 @@
 package ru.bot.mpbot.telegram.commands.text;
 
-import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.bot.mpbot.SpringContext;
-import ru.bot.mpbot.entity.Client;
-import ru.bot.mpbot.service.ClientService;
+import ru.bot.mpbot.model.client.Client;
+import ru.bot.mpbot.model.client.ClientService;
 import ru.bot.mpbot.telegram.commands.BotCommand;
-import ru.bot.mpbot.telegram.constants.Colors;
 import ru.bot.mpbot.telegram.constants.MessageConst;
 import ru.bot.mpbot.telegram.handler.MenuKeyboardMaker;
-import ru.bot.mpbot.telegram.handler.ReplyKeyboardMaker;
-
-import java.time.LocalDate;
 
 public class CheckCommand extends BotCommand {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());

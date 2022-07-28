@@ -1,12 +1,11 @@
 package ru.bot.mpbot.telegram.commands.callbackquery;
 
-import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Response;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.bot.mpbot.SpringContext;
-import ru.bot.mpbot.entity.Client;
+import ru.bot.mpbot.model.client.Client;
 import ru.bot.mpbot.requests.Connector;
-import ru.bot.mpbot.service.ClientService;
+import ru.bot.mpbot.model.client.ClientService;
 import ru.bot.mpbot.telegram.commands.BotCommand;
 import ru.bot.mpbot.telegram.constants.ErrorConst;
 import ru.bot.mpbot.telegram.constants.MessageConst;

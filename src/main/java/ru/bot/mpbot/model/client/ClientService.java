@@ -1,10 +1,7 @@
-package ru.bot.mpbot.service;
+package ru.bot.mpbot.model.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.bot.mpbot.entity.Client;
-import ru.bot.mpbot.exception.NoSuchClientException;
-import ru.bot.mpbot.repository.ClientRepository;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -55,6 +52,12 @@ public class ClientService {
     public void updateUsage(Long tgId){
         Client client = getClientByTgId(tgId);
         client.setUsageDate(LocalDate.now());
+        clientRepository.save(client);
+    }
+
+    public void updateNotifications(Long tgId, boolean isNotificationEnabled){
+        Client client = getClientByTgId(tgId);
+        client.setNotificationEnabled(isNotificationEnabled);
         clientRepository.save(client);
     }
 }
