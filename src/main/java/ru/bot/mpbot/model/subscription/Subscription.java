@@ -75,10 +75,10 @@ public class Subscription {
         final StringBuilder s = new StringBuilder("{");
         s.append("\"id\":")
                 .append(id);
-        s.append(",\"type\":")
-                .append(type);
-        s.append(",\"validThrough\":")
-                .append(validThrough);
+        s.append(",\"type\":\"")
+                .append(type).append("\"");
+        s.append(",\"validThrough\":\"")
+                .append(validThrough).append("\"");
         s.append(",\"client\":")
                 .append(client);
         s.append('}');

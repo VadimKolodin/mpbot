@@ -116,40 +116,46 @@ public class CallbackQueryHandler {
             msg.setText(MessageConst.NOTIFICATIONS.getMessage());
             return msg;
         } else if (queryData.contains("/notif_")){
-            if ("/notif_enable".equals(queryData)){
-                command = new EnableNotificationCommand(chatId);
-                EditMessageText msg = new EditMessageText();
-                msg.setChatId(chatId.toString());
-                msg.setMessageId(callbackQuery.getMessage().getMessageId());
-                msg.setText(MessageConst.NOTIFICATIONS.getMessage());
-                msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
-                        .getNotificationsDisbale());
-                try {
-                    bot.execute(msg);
-                } catch (TelegramApiException e) {
-                    LOGGER.error("error changing notification button to disable", e);
+            switch (queryData) {
+                case "/notif_enable" -> {
+                    command = new EnableNotificationCommand(chatId);
+                    EditMessageText msg = new EditMessageText();
+                    msg.setChatId(chatId.toString());
+                    msg.setMessageId(callbackQuery.getMessage().getMessageId());
+                    msg.setText(MessageConst.NOTIFICATIONS.getMessage());
+                    msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
+                            .getNotificationsDisbale());
+                    try {
+                        bot.execute(msg);
+                    } catch (TelegramApiException e) {
+                        LOGGER.error("error changing notification button to disable", e);
+                    }
+                    break;
                 }
-            } else if ("/notif_disable".equals(queryData)){
-                command = new DisableNotificationCommand(chatId);
-                EditMessageText msg = new EditMessageText();
-                msg.setChatId(chatId.toString());
-                msg.setMessageId(callbackQuery.getMessage().getMessageId());
-                msg.setText(MessageConst.NOTIFICATIONS.getMessage());
-                msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
-                        .getNotificationsEnable());
-                try {
-                    bot.execute(msg);
-                } catch (TelegramApiException e) {
-                    LOGGER.error("error changing notification button to enable", e);
+                case "/notif_disable" -> {
+                    command = new DisableNotificationCommand(chatId);
+                    EditMessageText msg = new EditMessageText();
+                    msg.setChatId(chatId.toString());
+                    msg.setMessageId(callbackQuery.getMessage().getMessageId());
+                    msg.setText(MessageConst.NOTIFICATIONS.getMessage());
+                    msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
+                            .getNotificationsEnable());
+                    try {
+                        bot.execute(msg);
+                    } catch (TelegramApiException e) {
+                        LOGGER.error("error changing notification button to enable", e);
+                    }
+                    break;
                 }
-            } else if ("/notif_back".equals(queryData)){
-                EditMessageText msg = new EditMessageText();
-                msg.setChatId(chatId.toString());
-                msg.setMessageId(callbackQuery.getMessage().getMessageId());
-                msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
-                        .getPage1());
-                msg.setText(MessageConst.MENU_TEXT.getMessage());
-                return msg;
+                case "/notif_back" -> {
+                    EditMessageText msg = new EditMessageText();
+                    msg.setChatId(chatId.toString());
+                    msg.setMessageId(callbackQuery.getMessage().getMessageId());
+                    msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
+                            .getPage1());
+                    msg.setText(MessageConst.MENU_TEXT.getMessage());
+                    return msg;
+                }
             }
         }
 
@@ -160,6 +166,7 @@ public class CallbackQueryHandler {
         try {
             command.execute();
         }catch (Exception e){
+            LOGGER.error("Error executing command.execute on "+command.getClass().getSimpleName(), e);
             return new SendMessage(chatId.toString(),handleException(e));
         }
 
@@ -177,6 +184,7 @@ public class CallbackQueryHandler {
             }
             return command.getAnswer();
         } else {
+            LOGGER.error("Command isExecuted=false after execution "+command.getClass().getSimpleName());
             return new SendMessage(chatId.toString(),
                     ErrorConst.INTERNAL_ERROR.getMessage());
         }

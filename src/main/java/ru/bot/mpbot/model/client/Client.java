@@ -106,23 +106,24 @@ public class Client {
 
     @Override
     public String toString() {
-        String s = "{" + "\"id\":" +
-                id +
-                ",\"tgId\":" +
-                tgId +
-                ",\"oznKey\":\"" +
-                Objects.toString(oznKey, "") + '\"' +
-                ",\"wbKey\":\"" +
-                Objects.toString(wbKey, "") + '\"' +
-                ",\"oznId\":\"" +
-                Objects.toString(oznId, "") + '\"' +
-                ",\"isNotificationEnabled\":" +
-                isNotificationEnabled +
-                ",\"regDate\":" +
-                regDate +
-                ",\"usageDate\":" +
-                usageDate +
-                '}';
-        return s;
+        final StringBuilder s = new StringBuilder("{");
+        s.append("\"id\":")
+                .append(id);
+        s.append(",\"tgId\":")
+                .append(tgId);
+        s.append(",\"oznKey\":\"")
+                .append(Objects.toString(oznKey, "")).append('\"');
+        s.append(",\"wbKey\":\"")
+                .append(Objects.toString(wbKey, "")).append('\"');
+        s.append(",\"oznId\":\"")
+                .append(Objects.toString(oznId, "")).append('\"');
+        s.append(",\"isNotificationEnabled\":")
+                .append(isNotificationEnabled);
+        s.append(",\"regDate\":\"")
+                .append(regDate).append('\"');
+        s.append(",\"usageDate\":\"")
+                .append(usageDate).append('\"');
+        s.append('}');
+        return s.toString();
     }
 }

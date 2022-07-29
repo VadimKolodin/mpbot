@@ -5,13 +5,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.bot.mpbot.SpringContext;
+import ru.bot.mpbot.model.client.Client;
 import ru.bot.mpbot.model.client.ClientService;
+import ru.bot.mpbot.model.subscription.Subscription;
+import ru.bot.mpbot.model.subscription.SubscriptionService;
 import ru.bot.mpbot.telegram.commands.BotCommand;
 import ru.bot.mpbot.telegram.constants.MessageConst;
+
+import java.util.Objects;
 
 public class EnableNotificationCommand extends BotCommand {
     private final Logger LOGGER = LoggerFactory.getLogger(EnableNotificationCommand.class);
     private final Long chatId;
+
+    private static final String BODY = """
+            {
+                "notify":true,
+                "client":%s,
+                "subscription":%s
+            }
+            """;
 
     public EnableNotificationCommand(Long chatId) {
         this.chatId = chatId;
@@ -19,9 +32,16 @@ public class EnableNotificationCommand extends BotCommand {
 
     public void execute(){
         LOGGER.info("Кладу в очередь включение уведомлений для " + chatId);
-        SpringContext.getBean(ClientService.class).updateNotifications(chatId, true);
+        ClientService clientService = SpringContext.getBean(ClientService.class);
+        clientService.updateNotifications(chatId, true);
+        Client client = clientService.getClientByTgId(chatId);
+        Subscription subscription = SpringContext.getBean(SubscriptionService.class)
+                .findSubscriptionByType(client, Subscription.SubscriptionType.NOTIFICATIONS);
+
         AmqpTemplate template = SpringContext.getBean(AmqpTemplate.class);
-        template.convertAndSend("subscribe_queue", "подписать "+ chatId);
+        template.convertAndSend("subscribe_queue", String.format(BODY,
+                client.toString(),
+                Objects.toString(subscription, "null")));
         this.answer = new SendMessage(chatId.toString(), MessageConst.NOTIFICATIONS_ENABLED.getMessage());
         super.execute();
     }
