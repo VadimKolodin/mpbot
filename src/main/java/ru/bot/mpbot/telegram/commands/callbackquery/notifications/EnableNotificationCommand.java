@@ -12,6 +12,7 @@ import ru.bot.mpbot.model.subscription.SubscriptionService;
 import ru.bot.mpbot.telegram.commands.BotCommand;
 import ru.bot.mpbot.telegram.constants.MessageConst;
 
+import java.io.IOException;
 import java.util.Objects;
 
 public class EnableNotificationCommand extends BotCommand {
@@ -30,13 +31,13 @@ public class EnableNotificationCommand extends BotCommand {
         this.chatId = chatId;
     }
 
-    public void execute(){
-        LOGGER.info("Кладу в очередь включение уведомлений для " + chatId);
+    public void execute() throws IOException {
+        LOGGER.info("Sending notification enable to subscribe_queue " + chatId);
         ClientService clientService = SpringContext.getBean(ClientService.class);
         clientService.updateNotifications(chatId, true);
         Client client = clientService.getClientByTgId(chatId);
         Subscription subscription = SpringContext.getBean(SubscriptionService.class)
-                .findSubscriptionByType(client, Subscription.SubscriptionType.NOTIFICATIONS);
+                .findValidSubscriptionByClient(client);
 
         AmqpTemplate template = SpringContext.getBean(AmqpTemplate.class);
         template.convertAndSend("subscribe_queue", String.format(BODY,

@@ -28,6 +28,8 @@ import ru.bot.mpbot.telegram.constants.ErrorConst;
 import ru.bot.mpbot.telegram.constants.MenuButtons;
 import ru.bot.mpbot.telegram.constants.MessageConst;
 
+import java.io.IOException;
+
 
 public class CallbackQueryHandler {
     private static final Long ADMIN = 433638597L;
@@ -165,9 +167,10 @@ public class CallbackQueryHandler {
         }
         try {
             command.execute();
-        }catch (Exception e){
+        }catch (IOException e){
             LOGGER.error("Error executing command.execute on "+command.getClass().getSimpleName(), e);
-            return new SendMessage(chatId.toString(),handleException(e));
+            return new SendMessage(chatId.toString(),
+                    new RequestExceptionHandler().handle(e));
         }
 
         if (command.isExecuted()) {
@@ -193,21 +196,5 @@ public class CallbackQueryHandler {
         CommandRecordService commandRecordService = SpringContext.getBean(CommandRecordService.class);
         commandRecordService.saveCommand(chatId, input, args);
     }
-    private String handleException(Exception e){
-        if (e instanceof NotAuthorizedOzonException){
-            return ErrorConst.WRONG_CREDENTIALS_OZON.getMessage();
-        } else if (e instanceof NotAuthorizedWBException){
-            return ErrorConst.WRONG_CREDENTIALS_WB.getMessage();
-        } else if (e instanceof ServerDownOzonException){
-            return ErrorConst.OZON_ERROR.getMessage();
-        } else if (e instanceof ServerDownWBException){
-            return ErrorConst.WB_ERROR.getMessage();
-        } else if (e instanceof  TooManyRequestsOzonException){
-            return ErrorConst.TOO_MANY_REQ_OZON.getMessage();
-        } else if (e instanceof TooManyRequestsWBException){
-            return ErrorConst.TOO_MANY_REQ_WB.getMessage();
-        } else {
-            return ErrorConst.INTERNAL_ERROR.getMessage();
-        }
-    }
+
 }

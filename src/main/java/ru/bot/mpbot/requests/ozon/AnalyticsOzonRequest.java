@@ -1,8 +1,7 @@
-package ru.bot.mpbot.telegram.commands.callbackquery.requestutil.ozon;
+package ru.bot.mpbot.requests.ozon;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
@@ -12,13 +11,14 @@ import org.slf4j.LoggerFactory;
 import ru.bot.mpbot.exception.NotAuthorizedOzonException;
 import ru.bot.mpbot.exception.ServerDownOzonException;
 import ru.bot.mpbot.exception.TooManyRequestsOzonException;
+import ru.bot.mpbot.requests.ApiExecutable;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class AnalyticsOzonRequest {
+public class AnalyticsOzonRequest implements ApiExecutable {
     private Logger LOGGER = LoggerFactory.getLogger(AnalyticsOzonRequest.class);
 
     private static final String URI = "https://api-seller.ozon.ru/v1/analytics/data";
@@ -59,7 +59,11 @@ public class AnalyticsOzonRequest {
         this.metrics = metrics;
     }
 
-    public JsonNode execute(int offset) throws IOException {
+    public JsonNode execute(String strOffset) throws IOException {
+        int offset=0;
+        try {
+            offset = Integer.parseInt(strOffset);
+        }catch (NumberFormatException e){}
         String body = String.format(BODY,
                 from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),

@@ -7,13 +7,15 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import ru.bot.mpbot.SpringContext;
+import ru.bot.mpbot.exception.RequestExceptionHandler;
 import ru.bot.mpbot.model.client.Client;
 import ru.bot.mpbot.model.client.ClientService;
+import ru.bot.mpbot.requests.RequestDecorator;
 import ru.bot.mpbot.telegram.commands.BotMediaCommand;
-import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.ozon.AnalyticsOzonRequest;
-import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.ozon.GetPriceOzonRequest;
-import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.wb.OrderWbRequest;
-import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.wb.StockWBRequest;
+import ru.bot.mpbot.requests.ozon.AnalyticsOzonRequest;
+import ru.bot.mpbot.requests.ozon.GetPriceOzonRequest;
+import ru.bot.mpbot.requests.wb.OrderWbRequest;
+import ru.bot.mpbot.requests.wb.StockWBRequest;
 import ru.bot.mpbot.telegram.constants.ErrorConst;
 import ru.bot.mpbot.telegram.constants.MessageConst;
 import ru.bot.mpbot.telegram.handler.MenuKeyboardMaker;
@@ -37,7 +39,7 @@ public class SalesTodayCommand extends BotMediaCommand {
         this.client = clientService.getClientByTgId(chatId);
         this.isDetailed=isDetailed;
     }
-    public void execute() {
+    public void execute() throws IOException {
         LocalDate from = LocalDate.now();
         LocalDate to = LocalDate.now();
 
@@ -54,7 +56,7 @@ public class SalesTodayCommand extends BotMediaCommand {
         }
         super.execute();
     }
-    private void executeDetailed(LocalDate from, LocalDate to){
+    private void executeDetailed(LocalDate from, LocalDate to) throws IOException {
         String ozonAnswer=null;
         String wbAnswer=null;
         if (client==null){
@@ -80,14 +82,14 @@ public class SalesTodayCommand extends BotMediaCommand {
                             .append(product.getName());
                 }
                 ozonAnswer = tempOzon.toString();
-            } catch (IOException e) {
-                LOGGER.info("Error executing Ozon part", e);
+            } catch (IOException ioe){
+            ozonAnswer = "*Ozon:* "+new RequestExceptionHandler().handle(ioe);
             }
         } else {
             ozonAnswer = ErrorConst.NO_OZON_KEY_COMMAND.getMessage() + "\n";
         }
         if (client.getWbKey() != null) {
-            try {
+            try{
                 HashMap<Long, Product> wbSales = wbSales(from, to);
                 StringBuilder tempWb;
                 if (wbSales.size() == 0) {
@@ -103,8 +105,8 @@ public class SalesTodayCommand extends BotMediaCommand {
                             .append(product.getName());
                 }
                 wbAnswer = tempWb.toString();
-            } catch (IOException e) {
-                LOGGER.info("Error executing WB part", e);
+            } catch (IOException ioe){
+                wbAnswer = "*WB:* "+new RequestExceptionHandler().handle(ioe);
             }
         } else {
             wbAnswer = ErrorConst.No_WB_KEY_COMMAND.getMessage() + "\n";
@@ -114,7 +116,7 @@ public class SalesTodayCommand extends BotMediaCommand {
                 (ozonAnswer != null ? ozonAnswer : "Ozon: " + ErrorConst.INTERNAL_ERROR.getMessage()) +"\n"+
                 (wbAnswer != null ? wbAnswer : "Wildberries: " + ErrorConst.INTERNAL_ERROR.getMessage()));
     }
-    private void executeDefault(LocalDate from, LocalDate to){
+    private void executeDefault(LocalDate from, LocalDate to) throws IOException {
         String ozonAnswer=null;
         String wbAnswer=null;
         int totalOzon=0;
@@ -128,7 +130,7 @@ public class SalesTodayCommand extends BotMediaCommand {
             return;
         }
         if (client.getOznId()!=null&&client.getOznKey()!=null) {
-            try {
+            try{
                 HashMap<Long, Product> ozonSales = ozonSales(from, to);
                 for (Product product : ozonSales.values()) {
                    priceOzon+=product.getTotalPrice();
@@ -137,8 +139,8 @@ public class SalesTodayCommand extends BotMediaCommand {
                 ozonAnswer = String.format(MessageConst.SALES_TODAY_OZON_TOTAL.getMessage(),
                         totalOzon,
                         priceOzon);
-            } catch (IOException e) {
-                LOGGER.info("Error executing Ozon part", e);
+            } catch (IOException ioe){
+                ozonAnswer = "*Ozon:* "+new RequestExceptionHandler().handle(ioe);
             }
         } else {
             ozonAnswer = ErrorConst.NO_OZON_KEY_COMMAND.getMessage() + "\n";
@@ -146,15 +148,16 @@ public class SalesTodayCommand extends BotMediaCommand {
         if (client.getWbKey() != null) {
             try {
                 HashMap<Long, Product> wbSales = wbSales(from, to);
-                for (Product product : wbSales.values()) {
-                    priceWB+=product.getTotalPrice();
-                    totalWB+=product.getQuantity();
-                }
-                wbAnswer = String.format(MessageConst.SALES_TODAY_WB_TOTAL.getMessage(),
-                        totalWB,
-                        priceWB);
-            } catch (IOException e) {
-                LOGGER.info("Error executing WB part", e);
+
+            for (Product product : wbSales.values()) {
+                priceWB+=product.getTotalPrice();
+                totalWB+=product.getQuantity();
+            }
+            wbAnswer = String.format(MessageConst.SALES_TODAY_WB_TOTAL.getMessage(),
+                    totalWB,
+                    priceWB);
+            } catch (IOException ioe){
+                wbAnswer = "*WB:* "+new RequestExceptionHandler().handle(ioe);
             }
         } else {
             wbAnswer = ErrorConst.No_WB_KEY_COMMAND.getMessage() + "\n";
@@ -193,12 +196,13 @@ public class SalesTodayCommand extends BotMediaCommand {
         }
     }
     private HashMap<Long, Product> ozonSales(LocalDate from, LocalDate to) throws IOException {
-        JsonNode items = new AnalyticsOzonRequest(
+        JsonNode items = new RequestDecorator(
+                new AnalyticsOzonRequest(
                 from,
                 to,
                 client.getOznKey(),
                 client.getOznId(),
-                "ordered_units").execute(0);
+                "ordered_units")).execute("0");
         HashMap<Long, Product> products = new HashMap(items.get("result").get("data").size()+3, 1);
         for (JsonNode element: items.get("result").get("data")){
             Long id = element.get("dimensions").get(0).get("id").asLong();
@@ -211,10 +215,12 @@ public class SalesTodayCommand extends BotMediaCommand {
         }
         Long[] keys = new Long[products.size()];
         keys = products.keySet().toArray(keys);
-        JsonNode prices = new GetPriceOzonRequest(client.getOznKey(),
-                client.getOznId(),
-                keys)
-                .executeSKU();
+        JsonNode prices = new RequestDecorator(
+                new GetPriceOzonRequest(
+                        client.getOznKey(),
+                    client.getOznId(),
+                    keys, true))
+                    .execute("");
         Product temp;
         for(JsonNode element: prices.get("result").get("items")){
             temp = products.get(element.get("sources").get(0).get("sku").asLong());
@@ -229,11 +235,13 @@ public class SalesTodayCommand extends BotMediaCommand {
     }
 
     private HashMap<Long, Product> wbSales(LocalDate from, LocalDate to) throws IOException {
-        JsonNode items = new OrderWbRequest(
+        JsonNode items = new RequestDecorator(
+                new OrderWbRequest(
                 from,
                 to,
                 2,
-                client.getWbKey()).execute(0);
+                client.getWbKey()))
+                .execute("0");
         HashMap<Long, Product> products = new HashMap();
         for (JsonNode element: items.get("orders")){
             Long id = element.get("barcode").asLong();
@@ -250,8 +258,10 @@ public class SalesTodayCommand extends BotMediaCommand {
                 }
             }
         }
-
-        items = new StockWBRequest(client.getWbKey()).execute(0);
+        RequestDecorator request = new RequestDecorator(
+                new StockWBRequest(client.getWbKey())
+        );
+        items = request.execute("0");
         int total = items.get("total").asInt();
         Product temp;
         for (JsonNode element: items.get("stocks")){
@@ -264,7 +274,7 @@ public class SalesTodayCommand extends BotMediaCommand {
         }
         int remain = total-1000;
         while(remain>0){
-            items = new StockWBRequest(client.getWbKey()).execute(total-remain);
+            items = request.execute(Integer.toString(total-remain));
             for (JsonNode element: items.get("stocks")){
                 temp = products.get(element.get("barcode").asLong());
                 if (temp!=null){

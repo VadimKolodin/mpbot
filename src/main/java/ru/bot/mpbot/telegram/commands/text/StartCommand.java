@@ -11,13 +11,14 @@ import ru.bot.mpbot.telegram.constants.Colors;
 import ru.bot.mpbot.telegram.constants.MessageConst;
 import ru.bot.mpbot.telegram.handler.ReplyKeyboardMaker;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 public class StartCommand extends BotCommand {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    public StartCommand(Long chatId){
+    public StartCommand(Long chatId) throws IOException {
         LOGGER.info("Started execution");
         ClientService clientService = SpringContext.getBean(ClientService.class);
         Client client = clientService.getClientByTgId(chatId);

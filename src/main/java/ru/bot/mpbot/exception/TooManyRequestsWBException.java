@@ -1,6 +1,8 @@
 package ru.bot.mpbot.exception;
 
-public class TooManyRequestsWBException extends IllegalArgumentException{
+import java.io.IOException;
+
+public class TooManyRequestsWBException extends IOException {
     public TooManyRequestsWBException(){
 
     }

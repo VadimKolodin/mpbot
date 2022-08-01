@@ -19,21 +19,18 @@ public class Subscription {
             generator = "subs_seq"
     )
     private Long id;
-    @Enumerated(EnumType.STRING)
-    private SubscriptionType type;
+    private LocalDate startFrom;
     private LocalDate validThrough;
     @ManyToOne
     @JoinColumn(name="client_id", nullable = false)
     private Client client;
-    public enum SubscriptionType{
-        NOTIFICATIONS
-    }
 
     public Subscription() {
     }
 
-    public Subscription(SubscriptionType type, LocalDate validThrough, Client client) {
-        this.type = type;
+    public Subscription(Long id, LocalDate startFrom, LocalDate validThrough, Client client) {
+        this.id = id;
+        this.startFrom = startFrom;
         this.validThrough = validThrough;
         this.client = client;
     }
@@ -46,12 +43,12 @@ public class Subscription {
         this.id = id;
     }
 
-    public SubscriptionType getType() {
-        return type;
+    public LocalDate getStartFrom() {
+        return startFrom;
     }
 
-    public void setType(SubscriptionType type) {
-        this.type = type;
+    public void setStartFrom(LocalDate startFrom) {
+        this.startFrom = startFrom;
     }
 
     public LocalDate getValidThrough() {
@@ -75,8 +72,8 @@ public class Subscription {
         final StringBuilder s = new StringBuilder("{");
         s.append("\"id\":")
                 .append(id);
-        s.append(",\"type\":\"")
-                .append(type).append("\"");
+        s.append(",\"startFrom\":\"")
+                .append(startFrom).append("\"");
         s.append(",\"validThrough\":\"")
                 .append(validThrough).append("\"");
         s.append(",\"client\":")

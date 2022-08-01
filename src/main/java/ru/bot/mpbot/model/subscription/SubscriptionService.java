@@ -23,15 +23,16 @@ public class SubscriptionService {
         }
         subscriptionRepository.save(subscription);
     }
-    public boolean isSubscriptionValid(Client client, Subscription.SubscriptionType type){
-        List<Subscription> subscriptions = subscriptionRepository.getSubscriptionByType(client, type);
+    public boolean isSubscriptionValid(Client client){
+        List<Subscription> subscriptions = subscriptionRepository.getSubscriptionByClient(client);
         if (subscriptions.isEmpty()){
             return false;
         }
-        return LocalDate.now().isBefore(subscriptions.get(0).getValidThrough());
+        return LocalDate.now().isBefore(subscriptions.get(0).getValidThrough())&&
+                LocalDate.now().isAfter(subscriptions.get(0).getStartFrom());
     }
-    public Subscription findSubscriptionByType(Client client, Subscription.SubscriptionType type){
-        List<Subscription> subscriptions = subscriptionRepository.getSubscriptionByType(client, type);
+    public Subscription findValidSubscriptionByClient(Client client){
+        List<Subscription> subscriptions = subscriptionRepository.getSubscriptionByClient(client);
         if (subscriptions.isEmpty()){
             return null;
         }

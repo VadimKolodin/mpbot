@@ -12,14 +12,19 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import ru.bot.mpbot.SpringContext;
+import ru.bot.mpbot.exception.RequestExceptionHandler;
 import ru.bot.mpbot.model.client.Client;
 import ru.bot.mpbot.exception.NotAuthorizedOzonException;
 import ru.bot.mpbot.exception.ServerDownOzonException;
 import ru.bot.mpbot.exception.TooManyRequestsOzonException;
 import ru.bot.mpbot.model.client.ClientService;
+import ru.bot.mpbot.requests.ApiExecutable;
+import ru.bot.mpbot.requests.RequestDecorator;
+import ru.bot.mpbot.requests.ozon.StockOzonRequest;
+import ru.bot.mpbot.requests.wb.InfoWBRequest;
 import ru.bot.mpbot.telegram.commands.BotMediaCommand;
-import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.ozon.GetPriceOzonRequest;
-import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.wb.StockWBRequest;
+import ru.bot.mpbot.requests.ozon.GetPriceOzonRequest;
+import ru.bot.mpbot.requests.wb.StockWBRequest;
 import ru.bot.mpbot.telegram.constants.ErrorConst;
 import ru.bot.mpbot.telegram.constants.MessageConst;
 import ru.bot.mpbot.telegram.misc.PieChartImage;
@@ -35,17 +40,7 @@ public class CapitalizeCommand extends BotMediaCommand {
 
     private static Logger LOGGER = LoggerFactory.getLogger(CapitalizeCommand.class);
     private static final int LOAD_FACTOR = 1000;
-    public final static String STOCK_OZON = "{\n" +
-            "    \"filter\": {\n" +
-            "        \"visibility\": \"ALL\"\n" +
-            "    },\n" +
-            "    \"last_id\": \"%s\",\n" +
-            "    \"limit\": 1000\n" +
-            "}";
-    public final static String PRICE_OZON = "{\n" +
-            "    \"product_id\": %s }";
-    private final static String STOCK_WB = "https://suppliers-api.wildberries.ru/api/v2/stocks?skip=%d&take=%d";
-    private final static String PRICE_WB = "https://suppliers-api.wildberries.ru/public/api/v1/info";
+
     private final Long chatId;
     private Client client;
     private double totalOzon;
@@ -56,7 +51,7 @@ public class CapitalizeCommand extends BotMediaCommand {
     }
 
     @Override
-    public void execute()   {
+    public void execute() throws IOException{
         String finalAnswer = ErrorConst.INTERNAL_ERROR.getMessage();
         try {
             String ozonAnswer;
@@ -64,12 +59,20 @@ public class CapitalizeCommand extends BotMediaCommand {
             ClientService clientService = SpringContext.getBean(ClientService.class);
             client = clientService.getClientByTgId(chatId);
             if (client.getOznId() != null && client.getOznKey() != null) {
-                ozonAnswer = ozonCapitalize() + "\n";
+                try {
+                    ozonAnswer = ozonCapitalize() + "\n";
+                } catch (IOException ioe){
+                    ozonAnswer = "*Ozon:* "+new RequestExceptionHandler().handle(ioe)+ "\n";
+                }
             } else {
                 ozonAnswer = ErrorConst.NO_OZON_KEY_COMMAND.getMessage() + "\n";
             }
             if (client.getWbKey() != null) {
-                wbAnswer = wbCapitalize() + "\n";
+                try {
+                    wbAnswer = wbCapitalize() + "\n";
+                } catch (IOException ioe){
+                    wbAnswer = "*WB:* "+new RequestExceptionHandler().handle(ioe)+ "\n";
+                }
             } else {
                 wbAnswer = ErrorConst.No_WB_KEY_COMMAND.getMessage() + "\n";
             }
@@ -98,46 +101,28 @@ public class CapitalizeCommand extends BotMediaCommand {
         }
     }
 
-    private String ozonCapitalize(){
-        try {
-            HashMap<Long, Product> products = getStockInfoOzon();
-            fillPriceOzon(products);
-            double fboTotal = 0;
-            double fbsTotal = 0;
-            for (Product product : products.values()) {
-                fboTotal += product.capitalizeFbo();
-                fbsTotal += product.capitalizeFbs();
-            }
-            totalOzon=fboTotal+fbsTotal;
-            return String.format(MessageConst.CAPITALIZE_OZON.getMessage(), fboTotal, fbsTotal);
-        }catch (IOException e){
-            LOGGER.error("Error counting ozon capitalization", e);
+    private String ozonCapitalize() throws IOException{
+
+        HashMap<Long, Product> products = getStockInfoOzon();
+        fillPriceOzon(products);
+        double fboTotal = 0;
+        double fbsTotal = 0;
+        for (Product product : products.values()) {
+            fboTotal += product.capitalizeFbo();
+            fbsTotal += product.capitalizeFbs();
         }
-        return null;
+        totalOzon=fboTotal+fbsTotal;
+        return String.format(MessageConst.CAPITALIZE_OZON.getMessage(), fboTotal, fbsTotal);
+
     }
     public HashMap<Long, Product> getStockInfoOzon() throws IOException {
         String clientId = client.getOznId();
         String apikey = client.getOznKey();
-        Content postResultForm=null;
-        try{
-        postResultForm = Request.Post("http://api-seller.ozon.ru/v3/product/info/stocks")
-                .setHeader("Client-Id", clientId)
-                .setHeader("Api-Key", apikey)
-                .bodyString(String.format(STOCK_OZON,""), ContentType.APPLICATION_JSON)
-                .execute().returnContent();
-        } catch(HttpResponseException e){
-            LOGGER.error("Exception making analytics request", e);
-            switch (e.getStatusCode()){
-                case 401:
-                case 403:
-                    throw new NotAuthorizedOzonException();
-                case 429:
-                    throw new TooManyRequestsOzonException();
-                case 500:
-                    throw new ServerDownOzonException();
-            }
-        }
-        JsonNode node = new ObjectMapper().readTree(postResultForm.asString(Charset.forName("UTF-8"))).get("result");
+
+        RequestDecorator request = new RequestDecorator(new StockOzonRequest(apikey, clientId));
+
+        JsonNode node = request.execute("").get("result");
+
         int total = node.get("total").asInt();
         String lastId = node.get("last_id").asText();
 
@@ -146,25 +131,9 @@ public class CapitalizeCommand extends BotMediaCommand {
 
         total -= LOAD_FACTOR;
         while(total>0){
-            try{
-            postResultForm = Request.Post("http://api-seller.ozon.ru/v3/product/info/stocks")
-                    .setHeader("Client-Id", clientId)
-                    .setHeader("Api-Key", apikey)
-                    .bodyString(String.format(STOCK_OZON,lastId), ContentType.APPLICATION_JSON)
-                    .execute().returnContent();
-            } catch(HttpResponseException e){
-                LOGGER.error("Exception making analytics request", e);
-                switch (e.getStatusCode()){
-                    case 401:
-                    case 403:
-                        throw new NotAuthorizedOzonException();
-                    case 429:
-                        throw new TooManyRequestsOzonException();
-                    case 500:
-                        throw new ServerDownOzonException();
-                }
-            }
-            node = new ObjectMapper().readTree(postResultForm.asString(Charset.forName("UTF-8"))).get("result");
+
+            node = request.execute(lastId).get("result");
+
             lastId = node.get("last_id").asText();
             addNotNullItemsOzon(products, node.get("items"));
             total -= LOAD_FACTOR;
@@ -177,47 +146,12 @@ public class CapitalizeCommand extends BotMediaCommand {
         Long[] keys = new Long[products.size()];
         keys = products.keySet().toArray(keys);
         int step = keys.length/1000;
-        if (step==0){
-            JsonNode items = new GetPriceOzonRequest(apikey, clientId, keys).execute();
-            items = items.get("result").get("items");
-            addPriceOzon(products, items);
-        } else {
 
-            for (int i = 0; i < step + 1; ++i) {
-                StringBuilder requestIds = new StringBuilder();
-                requestIds.append("[ ");
-                try {
-                    for (int j = step * i; j < step * (i + 1) + 1; ++j) {
-                        requestIds.append("\"" + keys[j] + "\",");
-                    }
-                } catch (ArrayIndexOutOfBoundsException ex) {
-                    LOGGER.info("Error creating request in multi-request", ex);
-                }
-                requestIds.deleteCharAt(requestIds.length() - 1);
-                requestIds.append(" ]");
-                Content postResultForm=null;
-                try{
-                postResultForm = Request.Post("http://api-seller.ozon.ru/v2/product/info/list")
-                        .setHeader("Client-Id",clientId)
-                        .setHeader("Api-Key", apikey)
-                        .bodyString(String.format(PRICE_OZON, requestIds.toString()), ContentType.APPLICATION_JSON)
-                        .execute().returnContent();
-                } catch(HttpResponseException e){
-                    LOGGER.error("Exception making analytics request", e);
-                    switch (e.getStatusCode()){
-                        case 401:
-                        case 403:
-                            throw new NotAuthorizedOzonException();
-                        case 429:
-                            throw new TooManyRequestsOzonException();
-                        case 500:
-                            throw new ServerDownOzonException();
-                    }
-                }
-                JsonNode items = new ObjectMapper().readTree(postResultForm.asString(Charset.forName("UTF-8"))).get("result").get("items");
-                addPriceOzon(products, items);
-            }
-        }
+        JsonNode items = new RequestDecorator(
+                new GetPriceOzonRequest(apikey, clientId, keys, false))
+                .execute("");
+        items = items.get("result").get("items");
+        addPriceOzon(products, items);
     }
     private static void addPriceOzon(HashMap<Long, Product> products, JsonNode array){
         for(JsonNode element: array){
@@ -245,33 +179,30 @@ public class CapitalizeCommand extends BotMediaCommand {
         }
     }
 
-    private String wbCapitalize(){
-        try {
-            HashMap<Long, Product> products = getStockInfoWB();
-            fillPriceWB(products);
-            double total = 0;
+    private String wbCapitalize() throws IOException{
 
-            for (Product product : products.values()) {
-                total += product.capitalizeFbo();
-            }
-            totalWB=total;
-            return String.format(MessageConst.CAPITALIZE_WB.getMessage(),total);
-        }catch (IOException e){
-            LOGGER.error("Error counting wb capitalization", e);
+        HashMap<Long, Product> products = getStockInfoWB();
+        fillPriceWB(products);
+        double total = 0;
+
+        for (Product product : products.values()) {
+            total += product.capitalizeFbo();
         }
-        return null;
+        totalWB=total;
+        return String.format(MessageConst.CAPITALIZE_WB.getMessage(),total);
     }
     public HashMap<Long, Product> getStockInfoWB() throws IOException {
         String apikey = client.getWbKey();
-        JsonNode node = new StockWBRequest(apikey).execute(0);
-        int total = node.get("total").asInt();
+        RequestDecorator request = new RequestDecorator(new StockWBRequest(apikey));
+        JsonNode node = request.execute("0");
 
+        int total = node.get("total").asInt();
         HashMap<Long, Product> products = new HashMap<>();
         addNotNullItemsWB(products, node.get("stocks"));
 
         int remain = total-LOAD_FACTOR;
         while(remain>0){
-            node = new StockWBRequest(apikey).execute(total-remain);
+            node = request.execute(Integer.toString(total-remain));
             addNotNullItemsOzon(products, node);
             remain -= LOAD_FACTOR;
         }
@@ -295,11 +226,9 @@ public class CapitalizeCommand extends BotMediaCommand {
     public void fillPriceWB(HashMap<Long, Product> products) throws IOException {
         String apikey = client.getWbKey();
 
-        Content postResultForm = Request.Get(PRICE_WB)
-                .setHeader("Authorization", apikey)
-                .execute().returnContent();
-
-        JsonNode items = new ObjectMapper().readTree(postResultForm.asString(Charset.forName("UTF-8")));
+        JsonNode items = new RequestDecorator(
+                new InfoWBRequest(apikey))
+                .execute("");
         addPriceWB(products, items);
     }
     private static void addPriceWB(HashMap<Long, Product> products, JsonNode array){

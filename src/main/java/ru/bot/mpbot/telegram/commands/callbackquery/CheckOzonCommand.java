@@ -28,7 +28,7 @@ public class CheckOzonCommand extends BotCommand {
     }
 
     @Override
-    public void execute()  {
+    public void execute() throws IOException {
         ClientService clientService = SpringContext.getBean(ClientService.class);
         Client client = clientService.getClientByTgId(chatId);
         if (client==null||(client.getOznKey()==null&&client.getOznId()==null)){

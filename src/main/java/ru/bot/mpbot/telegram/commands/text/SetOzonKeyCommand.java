@@ -10,6 +10,7 @@ import ru.bot.mpbot.telegram.commands.BotCommand;
 import ru.bot.mpbot.telegram.constants.Colors;
 import ru.bot.mpbot.telegram.constants.MessageConst;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 public class SetOzonKeyCommand extends BotCommand {
@@ -28,7 +29,7 @@ public class SetOzonKeyCommand extends BotCommand {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws IOException {
         LOGGER.info("Started execution");
         ClientService clientService = SpringContext.getBean(ClientService.class);
         Client client = clientService.getClientByTgId(chatId);

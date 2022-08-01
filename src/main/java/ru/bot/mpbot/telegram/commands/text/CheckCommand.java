@@ -10,10 +10,12 @@ import ru.bot.mpbot.telegram.commands.BotCommand;
 import ru.bot.mpbot.telegram.constants.MessageConst;
 import ru.bot.mpbot.telegram.handler.MenuKeyboardMaker;
 
+import java.io.IOException;
+
 public class CheckCommand extends BotCommand {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    public CheckCommand(Long chatId) {
+    public CheckCommand(Long chatId) throws IOException {
         LOGGER.info("Started execution");
         ClientService clientService = SpringContext.getBean(ClientService.class);
         Client client = clientService.getClientByTgId(chatId);
@@ -28,9 +30,8 @@ public class CheckCommand extends BotCommand {
                             client.getOznId()==null?"2)":"✅",
                             client.getWbKey()==null?"1)":"✅"));
         }
-        try {
-            super.execute();
-        } catch (Exception e){}
+        super.execute();
+
         ((SendMessage)this.answer).setReplyMarkup(
                 SpringContext.getBean(MenuKeyboardMaker.class).getCheckConnection());
         LOGGER.info("Execution complete");

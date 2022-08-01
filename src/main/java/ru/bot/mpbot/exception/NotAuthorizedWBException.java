@@ -1,6 +1,8 @@
 package ru.bot.mpbot.exception;
 
-public class NotAuthorizedWBException extends IllegalArgumentException{
+import java.io.IOException;
+
+public class NotAuthorizedWBException extends IOException {
     public NotAuthorizedWBException(){
 
     }

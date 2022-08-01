@@ -1,6 +1,8 @@
 package ru.bot.mpbot.exception;
 
-public class NotAuthorizedOzonException extends IllegalArgumentException{
+import java.io.IOException;
+
+public class NotAuthorizedOzonException extends IOException {
     public NotAuthorizedOzonException(){
 
     }

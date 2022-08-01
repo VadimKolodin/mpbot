@@ -1,6 +1,8 @@
 package ru.bot.mpbot.exception;
 
-public class ServerDownWBException extends IllegalArgumentException{
+import java.io.IOException;
+
+public class ServerDownWBException extends IOException {
     public ServerDownWBException(){
 
     }

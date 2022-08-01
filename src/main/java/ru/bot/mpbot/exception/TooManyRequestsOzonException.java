@@ -1,6 +1,8 @@
 package ru.bot.mpbot.exception;
 
-public class TooManyRequestsOzonException extends IllegalArgumentException{
+import java.io.IOException;
+
+public class TooManyRequestsOzonException extends IOException {
     public TooManyRequestsOzonException(){
 
     }

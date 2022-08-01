@@ -7,10 +7,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.bot.mpbot.SpringContext;
 import ru.bot.mpbot.model.client.Client;
 import ru.bot.mpbot.model.client.ClientService;
+import ru.bot.mpbot.requests.RequestDecorator;
 import ru.bot.mpbot.telegram.commands.BotCommand;
-import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.ozon.AnalyticsOzonRequest;
-import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.wb.OrderWbRequest;
-import ru.bot.mpbot.telegram.commands.callbackquery.requestutil.wb.StockWBRequest;
+import ru.bot.mpbot.requests.ozon.AnalyticsOzonRequest;
+import ru.bot.mpbot.requests.wb.OrderWbRequest;
+import ru.bot.mpbot.requests.wb.StockWBRequest;
 import ru.bot.mpbot.telegram.constants.MessageConst;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class ReturnsCommand extends BotCommand {
     }
 
     @Override
-    public void execute()  {
+    public void execute() throws IOException {
         List<Product> products;
         if (isOzn){
             products = executeOzn();
@@ -95,32 +96,45 @@ public class ReturnsCommand extends BotCommand {
         super.execute();
     }
 
-    public List<Product> executeWB(){
+    public List<Product> executeWB() throws IOException {
         this.answer = new SendMessage(client.getTgId().toString(), "WB: from:"+from+" to: "+to);
-        try{
-            JsonNode items = new OrderWbRequest(
-                from,
-                to,
-                2,
-                client.getWbKey()).execute(0);
-            HashMap<Long, Product> products = new HashMap();
-            for (JsonNode element: items.get("orders")){
-                Long id = element.get("barcode").asLong();
-                if (element.get("userStatus").asInt()==3) {
-                    if (products.containsKey(id)) {
-                        products.get(id).addReturn(1);
-                    } else {
-                        products.put(id, new Product(
-                                id,
-                                null,
-                                1
-                        ));
-                    }
+
+        JsonNode items = new RequestDecorator(new OrderWbRequest(
+            from,
+            to,
+            2,
+            client.getWbKey()))
+                .execute("0");
+        HashMap<Long, Product> products = new HashMap();
+        for (JsonNode element: items.get("orders")){
+            Long id = element.get("barcode").asLong();
+            if (element.get("userStatus").asInt()==3) {
+                if (products.containsKey(id)) {
+                    products.get(id).addReturn(1);
+                } else {
+                    products.put(id, new Product(
+                            id,
+                            null,
+                            1
+                    ));
                 }
             }
-            items = new StockWBRequest(client.getWbKey()).execute(0);
-            int total = items.get("total").asInt();
-            Product temp;
+        }
+        RequestDecorator request = new RequestDecorator(new StockWBRequest(client.getWbKey()));
+        items = request.execute("0");
+        int total = items.get("total").asInt();
+        Product temp;
+        for (JsonNode element: items.get("stocks")){
+            temp = products.get(element.get("barcode").asLong());
+            if (temp!=null){
+                temp.setName(String.format("%s (%s)",
+                        element.get("article"),
+                        element.get("name")));
+            }
+        }
+        int remain = total-1000;
+        while(remain>0){
+            items = request.execute(Integer.toString(total-remain));
             for (JsonNode element: items.get("stocks")){
                 temp = products.get(element.get("barcode").asLong());
                 if (temp!=null){
@@ -129,45 +143,32 @@ public class ReturnsCommand extends BotCommand {
                             element.get("name")));
                 }
             }
-            int remain = total-1000;
-            while(remain>0){
-                items = new StockWBRequest(client.getWbKey()).execute(total-remain);
-                for (JsonNode element: items.get("stocks")){
-                    temp = products.get(element.get("barcode").asLong());
-                    if (temp!=null){
-                        temp.setName(String.format("%s (%s)",
-                                element.get("article"),
-                                element.get("name")));
-                    }
-                }
-                remain -= 1000;
-            }
-            List<Product> productList = new ArrayList<>(products.values());
-            return productList;
-        } catch (IOException e) {
-            LOGGER.error("Error making WB request or retrieving data from it", e);
+            remain -= 1000;
         }
-        return null;
+        List<Product> productList = new ArrayList<>(products.values());
+        return productList;
+
     }
-    public List<Product> executeOzn(){
-        try {
-            AnalyticsOzonRequest req = new AnalyticsOzonRequest(LocalDate.now().minusMonths(1), LocalDate.now(),
-                client.getOznKey(), client.getOznId(), "returns");
-            JsonNode node = req.execute(0).get("result").get("data");
-            List<Product> products = new ArrayList<>();
-            for (JsonNode element: node){
-                products.add(new Product(
-                        element.get("dimensions").get("id").asLong(),
-                        element.get("dimensions").get("name").asText(),
-                        element.get("metrics").get(0).asInt()
-                ));
-            }
-            return products;
+    public List<Product> executeOzn() throws IOException {
 
-        } catch (IOException e) {
-            LOGGER.error("Error making Ozon request or retrieving data from it", e);
-
+        RequestDecorator request = new RequestDecorator(
+                new AnalyticsOzonRequest(
+                        LocalDate.now().minusMonths(1),
+                        LocalDate.now(),
+                        client.getOznKey(),
+                        client.getOznId(),
+                        "returns"));
+        JsonNode node = request.execute("0").get("result").get("data");
+        List<Product> products = new ArrayList<>();
+        for (JsonNode element: node){
+            products.add(new Product(
+                    element.get("dimensions").get("id").asLong(),
+                    element.get("dimensions").get("name").asText(),
+                    element.get("metrics").get(0).asInt()
+            ));
         }
-        return null;
+        return products;
+
+
     }
 }

@@ -4,6 +4,8 @@ import org.apache.http.client.HttpResponseException;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
+import java.io.IOException;
+
 public abstract class BotCommand {
 
     private boolean isExecuted = false;
@@ -17,7 +19,7 @@ public abstract class BotCommand {
         return answer;
     }
 
-    public void execute() {
+    public void execute() throws IOException {
         isExecuted = true;
     }
 

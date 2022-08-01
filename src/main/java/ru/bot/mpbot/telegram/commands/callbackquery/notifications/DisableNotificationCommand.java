@@ -10,6 +10,8 @@ import ru.bot.mpbot.model.client.ClientService;
 import ru.bot.mpbot.telegram.commands.BotCommand;
 import ru.bot.mpbot.telegram.constants.MessageConst;
 
+import java.io.IOException;
+
 public class DisableNotificationCommand extends BotCommand {
     private final Logger LOGGER = LoggerFactory.getLogger(EnableNotificationCommand.class);
     private final Long chatId;
@@ -25,8 +27,8 @@ public class DisableNotificationCommand extends BotCommand {
         this.chatId = chatId;
     }
 
-    public void execute(){
-        LOGGER.info("Кладу в очередь выключение уведомлений для " + chatId);
+    public void execute() throws IOException {
+        LOGGER.info("Sending notification disable to subscribe_queue " + chatId);
         ClientService clientService = SpringContext.getBean(ClientService.class);
         clientService.updateNotifications(chatId, false);
         Client client = clientService.getClientByTgId(chatId);

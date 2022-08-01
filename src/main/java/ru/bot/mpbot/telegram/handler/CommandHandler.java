@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.bot.mpbot.SpringContext;
+import ru.bot.mpbot.exception.RequestExceptionHandler;
 import ru.bot.mpbot.model.client.NoSuchClientException;
 import ru.bot.mpbot.model.commandrecord.CommandRecordService;
 import ru.bot.mpbot.telegram.MpBot;
@@ -21,6 +22,7 @@ import ru.bot.mpbot.telegram.constants.MessageConst;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class CommandHandler {
 
@@ -34,7 +36,7 @@ public class CommandHandler {
         bot=mpBot;
     }
 
-    public BotApiMethod<?> processCommand(Message message) {
+    public BotApiMethod<?> processCommand(Message message) throws IOException {
         /* try {
             bot.execute(new SendMessage(ADMIN.toString(), message.getChat().getUserName()+" ("+message.getChatId()+"): "+message.getText()));
         } catch (TelegramApiException e) {
@@ -89,9 +91,12 @@ public class CommandHandler {
                 return new SendMessage(message.getChatId().toString(),
                         MessageConst.UNDEFINED_REPLY.getMessage());
         }
-
-        command.execute();
-
+        try {
+            command.execute();
+        }catch (IOException e){
+            return new SendMessage(message.getChatId().toString(),
+                    new RequestExceptionHandler().handle(e));
+        }
         if (command.isExecuted()) {
             return command.getAnswer();
         } else {

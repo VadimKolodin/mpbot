@@ -1,6 +1,8 @@
 package ru.bot.mpbot.exception;
 
-public class ServerDownOzonException extends IllegalArgumentException{
+import java.io.IOException;
+
+public class ServerDownOzonException extends IOException {
     public ServerDownOzonException(){
 
     }
