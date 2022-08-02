@@ -55,6 +55,12 @@ public class CallbackQueryHandler {
             e.printStackTrace();
         }*//////////////////////////////
         try {
+            SpringContext.getBean(ClientService.class).updateUsage(chatId);
+        } catch (NoSuchClientException e){
+            return new SendMessage(chatId.toString(),
+                    ErrorConst.NO_ANY_CLIENT_INFO.getMessage());
+        }
+        try {
             saveCommandInput(callbackQuery.getMessage().getChatId(), callbackQuery.getData(), null);
         } catch (NoSuchClientException e){}
         BotCommand command = null;

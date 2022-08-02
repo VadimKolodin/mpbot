@@ -22,6 +22,7 @@ public class Client {
     private String oznKey;
     private String wbKey;
     private String oznId;
+    private String username;
     @Column(columnDefinition = "boolean default false")
     private boolean isNotificationEnabled;
     private LocalDate regDate;
@@ -30,11 +31,12 @@ public class Client {
     public Client() {
     }
 
-    public Client(Long tgId, String oznKey, String wbKey, String oznId, boolean isNotificationEnabled, LocalDate regDate, LocalDate usageDate) {
+    public Client(Long tgId, String oznKey, String wbKey, String oznId, String username, boolean isNotificationEnabled, LocalDate regDate, LocalDate usageDate) {
         this.tgId = tgId;
         this.oznKey = oznKey;
         this.wbKey = wbKey;
         this.oznId = oznId;
+        this.username = username;
         this.isNotificationEnabled = isNotificationEnabled;
         this.regDate = regDate;
         this.usageDate = usageDate;
@@ -78,6 +80,14 @@ public class Client {
 
     public void setOznId(String oznId) {
         this.oznId = oznId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public boolean isNotificationEnabled() {

@@ -11,30 +11,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-public class NgrokActivator implements Runnable{
+public class NgrokActivator{
 
     private final static String SET_URL_WEBHOOK_CARCASE = "https://api.telegram.org/bot%s/setWebhook?url=%s";
     private final Logger LOGGER = LoggerFactory.getLogger(NgrokActivator.class);
 
-    public static final long SESSION_TIME = 1000*60*120L;
     private static final String COMMAND = "src/main/resources/programs/ngrok.exe http 8080 --log stdout";
-    /**
-     * When an object implementing interface {@code Runnable} is used
-     * to create a thread, starting the thread causes the object's
-     * {@code run} method to be called in that separately executing
-     * thread.
-     * <p>
-     * The general contract of the method {@code run} is that it may
-     * take any action whatsoever.
-     *
-     * @see Thread#run()
-     */
-    @Override
-    public void run() {
-        LOGGER.info("Started execution");
+
+    public void run(Long sessionTime){
+        LOGGER.info(Colors.PURPLE.get()+"Started execution"+Colors.RESET.get());
         Runtime runtime = Runtime.getRuntime();
+        Process process = null;
         try {
-            Process process = runtime.exec(COMMAND);
+            process = runtime.exec(COMMAND);
             LOGGER.info("Launched ngrok");
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()));
@@ -52,17 +41,20 @@ public class NgrokActivator implements Runnable{
                     SpringConfig.getBotToken(),
                     s.substring(s.indexOf("url=")+4)));
             Connector.createSimpleRequest(url);
-            LOGGER.info("Trying to sleep, waking up in "+(SESSION_TIME-500)+" ms");
-            Thread.sleep(SESSION_TIME-500);
+            LOGGER.info(Colors.PURPLE.get()+"Trying to sleep, waking up in "+(sessionTime-500)+" ms"+Colors.RESET.get());
+            Thread.sleep(sessionTime-1000);
             LOGGER.info("Have waken up, killing ngrok");
             killProcess(process);
-            LOGGER.info("Finished work");
+            LOGGER.info(Colors.PURPLE.get()+"Finished work"+Colors.RESET.get());
         } catch (IOException e) {
-           LOGGER.error("Got error while launching ngrok", e);
+            LOGGER.error("Got error while launching ngrok", e);
         } catch (InterruptedException e) {
             LOGGER.error("Got error while sleeping", e);
+            if (process.isAlive()){
+                killProcess(process);
+            }
+            LOGGER.info(Colors.PURPLE.get()+"Killed ngrok"+Colors.RESET.get());
         }
-
     }
     private void killProcess(Process process){
         for (ProcessHandle child: process.children().toList()){

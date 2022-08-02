@@ -17,11 +17,11 @@ import java.util.concurrent.TimeUnit;
 public class MpbotApplication {
 	private static Logger LOGGER = LoggerFactory.getLogger(MpbotApplication.class);
 	public static void main(String[] args) {
-		startDaemonExecutor();
+
 		SpringApplication.run(MpbotApplication.class, args);
 	}
 
-	private static void startDaemonExecutor(){
+	/*private static void startDaemonExecutor(){
 		LOGGER.info(Colors.CYAN+"Creating Scheduled executor service"+Colors.RESET);
 		ScheduledExecutorService scheduler
 				= Executors.newScheduledThreadPool(1, new ThreadFactory() {
@@ -36,6 +36,6 @@ public class MpbotApplication {
 		scheduler.scheduleWithFixedDelay(new NgrokActivator(),
 				1, NgrokActivator.SESSION_TIME, TimeUnit.MILLISECONDS);
 		LOGGER.info(Colors.CYAN+"Launched first thread, next will be launched in "+NgrokActivator.SESSION_TIME+" ms"+Colors.RESET);
-	}
+	}*/
 
 }

@@ -1,6 +1,7 @@
 package ru.bot.mpbot.telegram.commands.callbackquery.sales;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.checkerframework.checker.units.qual.C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -18,6 +19,7 @@ import ru.bot.mpbot.requests.wb.OrderWbRequest;
 import ru.bot.mpbot.requests.wb.StockWBRequest;
 import ru.bot.mpbot.telegram.constants.ErrorConst;
 import ru.bot.mpbot.telegram.constants.MessageConst;
+import ru.bot.mpbot.telegram.handler.ClientValidator;
 import ru.bot.mpbot.telegram.handler.MenuKeyboardMaker;
 import ru.bot.mpbot.telegram.misc.PieChartImage;
 
@@ -65,7 +67,8 @@ public class SalesTodayCommand extends BotMediaCommand {
             this.answer = new SendMessage(client.getTgId().toString(), ozonAnswer+wbAnswer);
             return;
         }
-        if (client.getOznId()!=null&&client.getOznKey()!=null) {
+        ClientValidator validator = new ClientValidator(client);
+        if (validator.validateOzon()) {
             try {
                 HashMap<Long, Product> ozonSales = ozonSales(from, to);
                 StringBuilder tempOzon;
@@ -86,9 +89,9 @@ public class SalesTodayCommand extends BotMediaCommand {
             ozonAnswer = "*Ozon:* "+new RequestExceptionHandler().handle(ioe);
             }
         } else {
-            ozonAnswer = ErrorConst.NO_OZON_KEY_COMMAND.getMessage() + "\n";
+            ozonAnswer = validator.getErrorMessageOzon() + "\n";
         }
-        if (client.getWbKey() != null) {
+        if (validator.validateWB()) {
             try{
                 HashMap<Long, Product> wbSales = wbSales(from, to);
                 StringBuilder tempWb;
@@ -109,7 +112,7 @@ public class SalesTodayCommand extends BotMediaCommand {
                 wbAnswer = "*WB:* "+new RequestExceptionHandler().handle(ioe);
             }
         } else {
-            wbAnswer = ErrorConst.No_WB_KEY_COMMAND.getMessage() + "\n";
+            wbAnswer = validator.getErrorMessageWB() + "\n";
         }
 
         this.answer= new SendMessage (client.getTgId().toString(),
@@ -129,7 +132,8 @@ public class SalesTodayCommand extends BotMediaCommand {
             this.answer = new SendMessage(client.getTgId().toString(), ozonAnswer+wbAnswer);
             return;
         }
-        if (client.getOznId()!=null&&client.getOznKey()!=null) {
+        ClientValidator validator = new ClientValidator(client);
+        if (validator.validateOzon()) {
             try{
                 HashMap<Long, Product> ozonSales = ozonSales(from, to);
                 for (Product product : ozonSales.values()) {
@@ -143,9 +147,9 @@ public class SalesTodayCommand extends BotMediaCommand {
                 ozonAnswer = "*Ozon:* "+new RequestExceptionHandler().handle(ioe);
             }
         } else {
-            ozonAnswer = ErrorConst.NO_OZON_KEY_COMMAND.getMessage() + "\n";
+            ozonAnswer = validator.getErrorMessageOzon() + "\n";
         }
-        if (client.getWbKey() != null) {
+        if (validator.validateWB()) {
             try {
                 HashMap<Long, Product> wbSales = wbSales(from, to);
 
@@ -160,7 +164,7 @@ public class SalesTodayCommand extends BotMediaCommand {
                 wbAnswer = "*WB:* "+new RequestExceptionHandler().handle(ioe);
             }
         } else {
-            wbAnswer = ErrorConst.No_WB_KEY_COMMAND.getMessage() + "\n";
+            wbAnswer = validator.getErrorMessageWB() + "\n";
         }
         try {
             if (ozonAnswer != null && wbAnswer != null && (totalOzon > 0 && totalWB > 0)) {

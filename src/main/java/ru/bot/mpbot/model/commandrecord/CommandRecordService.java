@@ -31,6 +31,6 @@ public class CommandRecordService {
         if (client == null){
             throw new NoSuchClientException("tgId = "+tgId);
         }
-        commandRecordRepository.save(new CommandRecord(null, client, input, args));
+        commandRecordRepository.save(new CommandRecord(null, client, input));
     }
 }

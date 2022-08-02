@@ -27,6 +27,7 @@ import ru.bot.mpbot.requests.ozon.GetPriceOzonRequest;
 import ru.bot.mpbot.requests.wb.StockWBRequest;
 import ru.bot.mpbot.telegram.constants.ErrorConst;
 import ru.bot.mpbot.telegram.constants.MessageConst;
+import ru.bot.mpbot.telegram.handler.ClientValidator;
 import ru.bot.mpbot.telegram.misc.PieChartImage;
 
 import java.io.File;
@@ -58,23 +59,24 @@ public class CapitalizeCommand extends BotMediaCommand {
             String wbAnswer;
             ClientService clientService = SpringContext.getBean(ClientService.class);
             client = clientService.getClientByTgId(chatId);
-            if (client.getOznId() != null && client.getOznKey() != null) {
+            ClientValidator validator = new ClientValidator(client);
+            if (validator.validateOzon()) {
                 try {
                     ozonAnswer = ozonCapitalize() + "\n";
                 } catch (IOException ioe){
                     ozonAnswer = "*Ozon:* "+new RequestExceptionHandler().handle(ioe)+ "\n";
                 }
             } else {
-                ozonAnswer = ErrorConst.NO_OZON_KEY_COMMAND.getMessage() + "\n";
+                ozonAnswer = validator.getErrorMessageOzon() + "\n";
             }
-            if (client.getWbKey() != null) {
+            if (validator.validateWB()) {
                 try {
                     wbAnswer = wbCapitalize() + "\n";
                 } catch (IOException ioe){
                     wbAnswer = "*WB:* "+new RequestExceptionHandler().handle(ioe)+ "\n";
                 }
             } else {
-                wbAnswer = ErrorConst.No_WB_KEY_COMMAND.getMessage() + "\n";
+                wbAnswer = validator.getErrorMessageWB() + "\n";
             }
 
             finalAnswer = (ozonAnswer != null ? ozonAnswer : "Ozon: " + ErrorConst.INTERNAL_ERROR.getMessage()) +

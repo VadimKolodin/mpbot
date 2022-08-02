@@ -64,28 +64,28 @@ public class CommandHandler {
                 if (args.length!=2){
                    return wrongInput(message.getChatId(), ErrorConst.WRONG_INPUT_OZN_KEY);
                 } else {
-                    command = new SetOzonKeyCommand(message.getChatId(), args[1]);
+                    command = new SetOzonKeyCommand(message.getChatId(), message.getChat().getUserName(), args[1]);
                 }
                 break;
             case "/oznid":
                 if (args.length!=2){
                     return wrongInput(message.getChatId(), ErrorConst.WRONG_INPUT_OZN_ID);
                 } else {
-                    command = new SetOzonIdCommand(message.getChatId(), args[1]);
+                    command = new SetOzonIdCommand(message.getChatId(), message.getChat().getUserName(), args[1]);
                 }
                 break;
             case "/wbkey":
                 if (args.length!=2){
                     return wrongInput(message.getChatId(), ErrorConst.WRONG_INPUT_WB_KEY);
                 } else {
-                    command = new SetWBKeyCommand(message.getChatId(), args[1]);
+                    command = new SetWBKeyCommand(message.getChatId(), message.getChat().getUserName(), args[1]);
                 }
                 break;
             case "/check":
                 command = new CheckCommand(message.getChatId());
                 break;
             case "/start":
-                command = new StartCommand(message.getChatId());
+                command = new StartCommand(message.getChatId(), message.getChat().getUserName());
                 break;
             default:
                 return new SendMessage(message.getChatId().toString(),

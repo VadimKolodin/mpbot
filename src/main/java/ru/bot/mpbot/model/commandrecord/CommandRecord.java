@@ -23,16 +23,14 @@ public class CommandRecord {
     @JoinColumn(name="client_id", nullable = false)
     private Client client;
     private String input;
-    private String args;
 
     public CommandRecord() {
     }
 
-    public CommandRecord(Long id, Client user, String input, String args) {
+    public CommandRecord(Long id, Client user, String input) {
         this.id = id;
         this.client = user;
         this.input = input;
-        this.args = args;
     }
 
     public Long getId() {
@@ -59,34 +57,17 @@ public class CommandRecord {
         this.input = input;
     }
 
-    public String getArgs() {
-        return args;
-    }
-
-    public void setArgs(String args) {
-        this.args = args;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CommandRecord that = (CommandRecord) o;
-        return id.equals(that.id) && client.equals(that.client) && input.equals(that.input) && args.equals(that.args);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, client, input, args);
-    }
 
     @Override
     public String toString() {
-        return "{\"CommandRecord\":{"
-                + "                        \"id\":\"" + id + "\""
-                + ",                         \"user\":" + client
-                + ",                         \"input\":\"" + input + "\""
-                + ",                         \"args\":\"" + args + "\""
-                + "}}";
+        final StringBuilder s = new StringBuilder("{");
+        s.append("\"id\":")
+                .append(id);
+        s.append(",\"client\":")
+                .append(client);
+        s.append(",\"input\":\"")
+                .append(Objects.toString(input, "")).append('\"');
+        s.append('}');
+        return s.toString();
     }
 }

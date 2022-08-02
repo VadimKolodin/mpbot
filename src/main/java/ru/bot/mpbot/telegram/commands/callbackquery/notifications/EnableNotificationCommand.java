@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.bot.mpbot.SpringContext;
+import ru.bot.mpbot.messaging.MessagingService;
 import ru.bot.mpbot.model.client.Client;
 import ru.bot.mpbot.model.client.ClientService;
 import ru.bot.mpbot.model.subscription.Subscription;
@@ -39,10 +40,8 @@ public class EnableNotificationCommand extends BotCommand {
         Subscription subscription = SpringContext.getBean(SubscriptionService.class)
                 .findValidSubscriptionByClient(client);
 
-        AmqpTemplate template = SpringContext.getBean(AmqpTemplate.class);
-        template.convertAndSend("subscribe_queue", String.format(BODY,
-                client.toString(),
-                Objects.toString(subscription, "null")));
+        MessagingService messagingService = SpringContext.getBean(MessagingService.class);
+        messagingService.sendNotificationsSubscription(client, subscription);
         this.answer = new SendMessage(chatId.toString(), MessageConst.NOTIFICATIONS_ENABLED.getMessage());
         super.execute();
     }

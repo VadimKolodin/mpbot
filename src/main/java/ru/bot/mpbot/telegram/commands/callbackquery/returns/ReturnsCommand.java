@@ -12,7 +12,9 @@ import ru.bot.mpbot.telegram.commands.BotCommand;
 import ru.bot.mpbot.requests.ozon.AnalyticsOzonRequest;
 import ru.bot.mpbot.requests.wb.OrderWbRequest;
 import ru.bot.mpbot.requests.wb.StockWBRequest;
+import ru.bot.mpbot.telegram.constants.ErrorConst;
 import ru.bot.mpbot.telegram.constants.MessageConst;
+import ru.bot.mpbot.telegram.handler.ClientValidator;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -51,10 +53,23 @@ public class ReturnsCommand extends BotCommand {
 
     @Override
     public void execute() throws IOException {
-        List<Product> products;
+        List<Product> products=null;
+        ClientValidator validator = new ClientValidator(client);
         if (isOzn){
+            if (!validator.validateOzon()) {
+                this.answer =  new SendMessage(client.getTgId().toString(),
+                        validator.getErrorMessageOzon());
+                super.execute();
+                return;
+            }
             products = executeOzn();
         } else {
+            if (!validator.validateWB()){
+                this.answer = new SendMessage(client.getTgId().toString(),
+                            validator.getErrorMessageWB());
+                super.execute();
+                return;
+            }
             products = executeWB();
         }
         if (products == null){

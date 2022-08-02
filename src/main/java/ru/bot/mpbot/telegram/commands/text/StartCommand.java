@@ -18,14 +18,14 @@ public class StartCommand extends BotCommand {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    public StartCommand(Long chatId) throws IOException {
+    public StartCommand(Long chatId, String username) throws IOException {
         LOGGER.info("Started execution");
         ClientService clientService = SpringContext.getBean(ClientService.class);
         Client client = clientService.getClientByTgId(chatId);
         if (client==null){
             LOGGER.info(Colors.GREEN.get()+"Registering new user: "+chatId+Colors.RESET.get());
             clientService.createClient(new Client(chatId, null,
-                    null, null, false, LocalDate.now(), LocalDate.now()));
+                    null, null, username, false, LocalDate.now(), LocalDate.now()));
         } else {
             clientService.updateUsage(chatId);
         }

@@ -51,7 +51,11 @@ public class ClientService {
 
     public void updateUsage(Long tgId){
         Client client = getClientByTgId(tgId);
-        client.setUsageDate(LocalDate.now());
+        if (client!=null) {
+            client.setUsageDate(LocalDate.now());
+        } else {
+            throw new NoSuchClientException();
+        }
         clientRepository.save(client);
     }
 

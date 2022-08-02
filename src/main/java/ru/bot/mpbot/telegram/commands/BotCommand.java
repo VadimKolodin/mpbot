@@ -3,6 +3,7 @@ package ru.bot.mpbot.telegram.commands;
 import org.apache.http.client.HttpResponseException;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import ru.bot.mpbot.marketing.AdvertMaker;
 
 import java.io.IOException;
 
@@ -14,7 +15,11 @@ public abstract class BotCommand {
 
     public SendMessage getAnswer(){
         if (answer!=null){
-            answer.enableMarkdown(true);
+            SendMessage temp = new SendMessage(
+                    answer.getChatId(),
+                    answer.getText()+"\n=+=+=+=+=Реклама=+=+=+=+=\n" +AdvertMaker.getRandomAdvert());
+            temp.enableMarkdown(true);
+            return temp;
         }
         return answer;
     }
