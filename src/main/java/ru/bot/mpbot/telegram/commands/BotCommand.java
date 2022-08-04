@@ -17,8 +17,9 @@ public abstract class BotCommand {
         if (answer!=null){
             SendMessage temp = new SendMessage(
                     answer.getChatId(),
-                    answer.getText()+"\n=+=+=+=+=Реклама=+=+=+=+=\n" +AdvertMaker.getRandomAdvert());
+                    answer.getText()+"\n———————————————\n _Рекламная интеграция_ \n\n" +AdvertMaker.getRandomAdvert());
             temp.enableMarkdown(true);
+            temp.setReplyMarkup(answer.getReplyMarkup());
             return temp;
         }
         return answer;

@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 
 public class GetPriceOzonRequest implements ApiExecutable {
     private final Logger LOGGER = LoggerFactory.getLogger(GetPriceOzonRequest.class);
-    private static final String URI = "http://api-seller.ozon.ru/v2/product/info/list";
+    private static final String URI = "https://api-seller.ozon.ru/v2/product/info/list";
     public final static String PRICE_OZON = "{\n" +
             "    \"product_id\": %s }";
     public final static String PRICE_OZON_SKU = "{\n" +

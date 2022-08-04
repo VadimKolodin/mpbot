@@ -31,6 +31,7 @@ public class RequestDecorator {
             try{
                 result = apiRequest.execute(strOffset);
                 attempts=0;
+                exception=null;
             } catch (HttpResponseException e){
                 LOGGER.error("Exception making analytics request", e);
                 switch (e.getStatusCode()){
@@ -41,7 +42,7 @@ public class RequestDecorator {
                         LOGGER.info("RETRYING...");
                         attempts--;
                         exception = (isOzon?new TooManyRequestsOzonException():new TooManyRequestsWBException());
-                        try {LOGGER.error("Waiting to make new request", e);
+                        try {LOGGER.error("Waiting to make new request"+attempts+" attempts remaining", e);
                             Thread.sleep(60*1000);
                         } catch (InterruptedException ex) {
                             LOGGER.error("Error while repeating request", e);
@@ -59,6 +60,8 @@ public class RequestDecorator {
                             throw new IOException("Error while repeating request");
                         }
                         break;
+                    default:
+                        throw new IOException("Неизвестная ошибка");
                 }
             }
         }while(attempts>0);

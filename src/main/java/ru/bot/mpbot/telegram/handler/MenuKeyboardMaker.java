@@ -3,6 +3,7 @@ package ru.bot.mpbot.telegram.handler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.bot.mpbot.telegram.constants.CallbackQueryConst;
 import ru.bot.mpbot.telegram.constants.MenuButtons;
 
 import java.util.ArrayList;
@@ -21,8 +22,8 @@ public class MenuKeyboardMaker {
 
     public MenuKeyboardMaker(){
         List<List<InlineKeyboardButton>> rowListCheck = new ArrayList<>();
-        rowListCheck.add(createButton("Проверить соединение с Ozon", "/checkozn"));
-        rowListCheck.add(createButton("Проверить соединение с Wildberries","/checkwb"));
+        rowListCheck.add(createButton("Проверить соединение с Ozon", CallbackQueryConst.CHECK_OZON.getMessage()));
+        rowListCheck.add(createButton("Проверить соединение с Wildberries",CallbackQueryConst.CHECK_WB.getMessage()));
         checkConnection = new InlineKeyboardMarkup();
         checkConnection.setKeyboard(rowListCheck);
 
@@ -34,7 +35,7 @@ public class MenuKeyboardMaker {
         notificationsDisbale = generateDisableNotifications();
 
         List<List<InlineKeyboardButton>> rowListSales= new ArrayList<>();
-        rowListSales.add(createButton("Подробнее", "/sales_detailed"));
+        rowListSales.add(createButton("Подробнее", CallbackQueryConst.SALES_DETAILED.getMessage()));
         detailedSales = new InlineKeyboardMarkup();
         detailedSales.setKeyboard(rowListSales);
 
@@ -62,7 +63,7 @@ public class MenuKeyboardMaker {
         List<List<InlineKeyboardButton>> rowListMp = new ArrayList<>();
         rowListMp.add(createButton("Ozon", "/return_ozn"));
         rowListMp.add(createButton("WB","/return_wb"));
-        rowListMp.add(createButton("«Назад","/return_back"));
+        rowListMp.add(createButton("«Назад",CallbackQueryConst.RETURN_BACK.getMessage()));
         InlineKeyboardMarkup temp = new InlineKeyboardMarkup();
         temp.setKeyboard(rowListMp);
         return temp;
@@ -74,12 +75,12 @@ public class MenuKeyboardMaker {
             rowListPeriod.add(createButton("2 недели", "/r_ozn_1"));
             rowListPeriod.add(createButton("1 месяц", "/r_ozn_2"));
             rowListPeriod.add(createButton("3 месяца", "/r_ozn_3"));
-            rowListPeriod.add(createButton("«Назад","/r_back"));
+            rowListPeriod.add(createButton("«Назад",CallbackQueryConst.RETURN_SUBGROUP_BACK.getMessage()));
         } else {
             rowListPeriod.add(createButton("2 недели", "/r_wb_1"));
             rowListPeriod.add(createButton("1 месяц", "/r_wb_2"));
             rowListPeriod.add(createButton("3 месяца", "/r_wb_3"));
-            rowListPeriod.add(createButton("«Назад","/r_back"));
+            rowListPeriod.add(createButton("«Назад",CallbackQueryConst.RETURN_SUBGROUP_BACK.getMessage()));
         }
         temp.setKeyboard(rowListPeriod);
         return temp;
@@ -88,16 +89,16 @@ public class MenuKeyboardMaker {
     public InlineKeyboardMarkup generateEnableNotifications(){
         List<List<InlineKeyboardButton>> rowListPeriod = new ArrayList<>();
         InlineKeyboardMarkup temp = new InlineKeyboardMarkup();
-        rowListPeriod.add(createButton("Включить уведомления✅", "/notif_enable"));
-        rowListPeriod.add(createButton("«Назад", "/notif_back"));
+        rowListPeriod.add(createButton("Включить уведомления✅", CallbackQueryConst.NOTIFICATIONS_ENABLE.getMessage()));
+        rowListPeriod.add(createButton("«Назад", CallbackQueryConst.NOTIFICATIONS_BACK.getMessage()));
         temp.setKeyboard(rowListPeriod);
         return temp;
     }
     public InlineKeyboardMarkup generateDisableNotifications(){
         List<List<InlineKeyboardButton>> rowListPeriod = new ArrayList<>();
         InlineKeyboardMarkup temp = new InlineKeyboardMarkup();
-        rowListPeriod.add(createButton("Отключить уведомления❌", "/notif_disable"));
-        rowListPeriod.add(createButton("«Назад", "/notif_back"));
+        rowListPeriod.add(createButton("Отключить уведомления❌", CallbackQueryConst.NOTIFICATIONS_DISABLE.getMessage()));
+        rowListPeriod.add(createButton("«Назад", CallbackQueryConst.NOTIFICATIONS_BACK.getMessage()));
         temp.setKeyboard(rowListPeriod);
         return temp;
     }

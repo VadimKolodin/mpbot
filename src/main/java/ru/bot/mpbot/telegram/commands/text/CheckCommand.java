@@ -32,8 +32,9 @@ public class CheckCommand extends BotCommand {
         }
         super.execute();
 
-        ((SendMessage)this.answer).setReplyMarkup(
+        this.answer.setReplyMarkup(
                 SpringContext.getBean(MenuKeyboardMaker.class).getCheckConnection());
+        this.answer.enableMarkdown(false);
         LOGGER.info("Execution complete");
     }
 }

@@ -34,8 +34,9 @@ public class StartCommand extends BotCommand {
 
         super.execute();
 
-        ((SendMessage)this.answer).setReplyMarkup(
+        this.answer.setReplyMarkup(
                 SpringContext.getBean(ReplyKeyboardMaker.class).getReplyKeyboardMarkup());
+        this.answer.enableMarkdown(false);
         LOGGER.info("Execution complete");
     }
 }

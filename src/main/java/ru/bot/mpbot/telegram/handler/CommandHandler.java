@@ -53,12 +53,14 @@ public class CommandHandler {
             case "/menu":
                 SendMessage menuMessage = new SendMessage(message.getChatId().toString(),
                         MessageConst.MENU_TEXT.getMessage());
+                menuMessage.enableMarkdown(true);
                 menuMessage.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class).getPage1());
                 return menuMessage;
             case "/help":
-                //TODO
-                return new SendMessage(message.getChatId().toString(),
-                        "/help");
+                SendMessage helpMessage = new SendMessage(message.getChatId().toString(),
+                        MessageConst.HELP.getMessage());
+                helpMessage.enableMarkdown(true);
+                return helpMessage;
 
             case "/oznkey":
                 if (args.length!=2){

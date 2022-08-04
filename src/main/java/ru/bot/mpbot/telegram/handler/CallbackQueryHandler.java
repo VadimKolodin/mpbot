@@ -24,6 +24,7 @@ import ru.bot.mpbot.telegram.commands.callbackquery.notifications.EnableNotifica
 import ru.bot.mpbot.telegram.commands.callbackquery.returns.ReturnPeriod;
 import ru.bot.mpbot.telegram.commands.callbackquery.returns.ReturnsCommand;
 import ru.bot.mpbot.telegram.commands.callbackquery.sales.SalesTodayCommand;
+import ru.bot.mpbot.telegram.constants.CallbackQueryConst;
 import ru.bot.mpbot.telegram.constants.ErrorConst;
 import ru.bot.mpbot.telegram.constants.MenuButtons;
 import ru.bot.mpbot.telegram.constants.MessageConst;
@@ -48,12 +49,12 @@ public class CallbackQueryHandler {
         LOGGER.info(callbackQuery.getMessage().getChat().getUserName()+
                 " ("+chatId+"): "
                 +queryData);
-        /* try {
+         try {
             bot.execute(new SendMessage(ADMIN.toString(),
              callbackQuery.getMessage().getChat().getUserName()+" ("+chatId+"): "+queryData));
         } catch (TelegramApiException e) {
             e.printStackTrace();
-        }*//////////////////////////////
+        }
         try {
             SpringContext.getBean(ClientService.class).updateUsage(chatId);
         } catch (NoSuchClientException e){
@@ -63,29 +64,32 @@ public class CallbackQueryHandler {
         try {
             saveCommandInput(callbackQuery.getMessage().getChatId(), callbackQuery.getData(), null);
         } catch (NoSuchClientException e){}
+
         BotCommand command = null;
         if (MenuButtons.CAPITALIZE.getData().equals(queryData)){
             command = new CapitalizeCommand(chatId);
-        } else if ("/checkozn".equals(queryData)){
+        } else if (CallbackQueryConst.CHECK_OZON.getMessage().equals(queryData)){
             command = new CheckOzonCommand(chatId);
-        } else if ("/checkwb".equals(queryData)){
+        } else if (CallbackQueryConst.CHECK_WB.getMessage().equals(queryData)){
             command = new CheckWBCommand(chatId);
         } else if (MenuButtons.SALES_TODAY.getData().equals(queryData)){
             command = new SalesTodayCommand(chatId, false);
-        } else if ("/sales_detailed".equals(queryData)){
+        } else if (CallbackQueryConst.SALES_DETAILED.getMessage().equals(queryData)){
             command = new SalesTodayCommand(chatId, true);
         } else if (MenuButtons.RETURNS.getData().equals(queryData)){
             EditMessageText returnsMsg = new EditMessageText();
+            returnsMsg.enableMarkdown(true);
             returnsMsg.setChatId(chatId.toString());
             returnsMsg.setMessageId(callbackQuery.getMessage().getMessageId());
             returnsMsg.setText(MessageConst.RETURNS_MP_CHOICE.getMessage());
             returnsMsg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class).getReturnsMpChoice());
             return returnsMsg;
-        } else if (queryData.contains("/return_")){
+        } else if (queryData.contains(CallbackQueryConst.RETURN_GROUP.getMessage())){
             EditMessageText msg = new EditMessageText();
+            msg.enableMarkdown(true);
             msg.setChatId(chatId.toString());
             msg.setMessageId(callbackQuery.getMessage().getMessageId());
-            if (queryData.equals("/return_back")){
+            if (CallbackQueryConst.RETURN_BACK.getMessage().equals(queryData)){
                 msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
                         .getPage1());
                 msg.setText(MessageConst.MENU_TEXT.getMessage());
@@ -95,9 +99,10 @@ public class CallbackQueryHandler {
                 msg.setText(MessageConst.RETURNS_PERIOD_CHOICE.getMessage());
             }
             return msg;
-        } else if (queryData.contains("/r_")){
-            if (queryData.equals("/r_back")) {
+        } else if (queryData.contains(CallbackQueryConst.RETURN_SUBGROUP.getMessage())){
+            if (CallbackQueryConst.RETURN_SUBGROUP_BACK.getMessage().equals(queryData)) {
                 EditMessageText msg = new EditMessageText();
+                msg.enableMarkdown(true);
                 msg.setChatId(chatId.toString());
                 msg.setMessageId(callbackQuery.getMessage().getMessageId());
                 msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
@@ -112,6 +117,7 @@ public class CallbackQueryHandler {
             }
         } else if (MenuButtons.NOTIFICATIONS.getData().equals(queryData)){
             EditMessageText msg = new EditMessageText();
+            msg.enableMarkdown(true);
             msg.setChatId(chatId.toString());
             msg.setMessageId(callbackQuery.getMessage().getMessageId());
             if (SpringContext.getBean(ClientService.class).getClientByTgId(chatId).isNotificationEnabled()){
@@ -123,11 +129,11 @@ public class CallbackQueryHandler {
             }
             msg.setText(MessageConst.NOTIFICATIONS.getMessage());
             return msg;
-        } else if (queryData.contains("/notif_")){
-            switch (queryData) {
-                case "/notif_enable" -> {
+        } else if (queryData.contains(CallbackQueryConst.NOTIFY_GROUP.getMessage())){
+            if (CallbackQueryConst.NOTIFICATIONS_ENABLE.getMessage().equals(queryData)){
                     command = new EnableNotificationCommand(chatId);
                     EditMessageText msg = new EditMessageText();
+                    msg.enableMarkdown(true);
                     msg.setChatId(chatId.toString());
                     msg.setMessageId(callbackQuery.getMessage().getMessageId());
                     msg.setText(MessageConst.NOTIFICATIONS.getMessage());
@@ -138,11 +144,10 @@ public class CallbackQueryHandler {
                     } catch (TelegramApiException e) {
                         LOGGER.error("error changing notification button to disable", e);
                     }
-                    break;
-                }
-                case "/notif_disable" -> {
+                } else if (CallbackQueryConst.NOTIFICATIONS_DISABLE.getMessage().equals(queryData)){
                     command = new DisableNotificationCommand(chatId);
                     EditMessageText msg = new EditMessageText();
+                    msg.enableMarkdown(true);
                     msg.setChatId(chatId.toString());
                     msg.setMessageId(callbackQuery.getMessage().getMessageId());
                     msg.setText(MessageConst.NOTIFICATIONS.getMessage());
@@ -153,11 +158,10 @@ public class CallbackQueryHandler {
                     } catch (TelegramApiException e) {
                         LOGGER.error("error changing notification button to enable", e);
                     }
-                    break;
-                }
-                case "/notif_back" -> {
+                } else if (CallbackQueryConst.NOTIFICATIONS_BACK.getMessage().equals(queryData)){
                     EditMessageText msg = new EditMessageText();
                     msg.setChatId(chatId.toString());
+                    msg.enableMarkdown(true);
                     msg.setMessageId(callbackQuery.getMessage().getMessageId());
                     msg.setReplyMarkup(SpringContext.getBean(MenuKeyboardMaker.class)
                             .getPage1());
@@ -165,7 +169,7 @@ public class CallbackQueryHandler {
                     return msg;
                 }
             }
-        }
+
 
         if (command== null){
             return new SendMessage(chatId.toString(),
@@ -183,7 +187,7 @@ public class CallbackQueryHandler {
             if (command instanceof BotMediaCommand){
                 if (((BotMediaCommand) command).getMediaAnswer()!=null){
                     try {
-                        bot.execute((SendPhoto) ((BotMediaCommand) command).getMediaAnswer());
+                        bot.execute(((BotMediaCommand) command).getMediaAnswer());
                     } catch (TelegramApiException e) {
                         LOGGER.error("Error answering "+chatId, e);
                         return new SendMessage(chatId.toString(),

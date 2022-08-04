@@ -1,7 +1,8 @@
 package ru.bot.mpbot.marketing;
 
 
-public class AdvertMaker {
+public class
+AdvertMaker {
 
     public static String getRandomAdvert(){
         Adverts[] ads = AdvertMaker.Adverts.values();
@@ -10,9 +11,9 @@ public class AdvertMaker {
     }
 
     private enum Adverts{
-        AD1("Реклама 1"),
-        AD2("Реклама 2"),
-        AD3("Реклама 3");
+        AD1("Рекалма 1"),
+        AD2("Рекалма 2"),
+        AD3("Рекалма 3");
 
         private final String text;
 
